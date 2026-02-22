@@ -1,0 +1,4 @@
+assets/config.json
+state/*
+!state/.gitkeep
+scripts/__pycache__/

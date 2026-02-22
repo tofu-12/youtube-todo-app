@@ -12,6 +12,9 @@ __pycache__/
 *.pyd
 .Python
 
+# pytest
+.pytest_cache/
+
 # 仮想環境
 .venv/
 venv/

@@ -1,42 +1,59 @@
 {
-  "enabledPlugins": {
-    "context7@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "claude-mem@thedotmack": true,
-    "superpowers@superpowers-marketplace": true,
-    "ralph-loop@claude-plugins-official": true
-  },
   "env": {
     "ENABLE_TOOL_SEARCH": "true"
   },
   "permissions": {
-    "deny": [
-      "Read(./.env)",
-      "Read(./secrets/**)"
-    ],
     "allow": [
       "Read(./**)",
       "Bash(ls *)",
-
       "Bash(pytest *)",
       "Bash(python *)",
       "Bash(uv add *)",
       "Bash(uv sync)",
       "Bash(uv run pytest *)",
       "Bash(uv run python *)",
-
       "Bash(git log *)",
       "Bash(git diff *)",
       "Bash(git show *)",
-      "Bash(git status *)"
+      "Bash(git status *)",
+
+      "Bash(gh pr list *)",
+      "Bash(gh pr view *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue view *)",
+      "Bash(gh run list *)",
+      "Bash(gh run view *)",
+      "Bash(gh repo view *)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)",
+      "Read(./.claude/slack-notify/assets/config.json)"
     ],
     "ask": [
       "Bash(uv remove *)",
       "Bash(uv tool install *)",
-
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      
+      "Bash(gh pr create *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr review *)",
+      "Bash(gh issue create *)",
+      "Bash(gh issue close *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh issue comment *)",
+      "Bash(gh release create *)",
+      "Bash(gh api *)"
     ]
+  },
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "claude-mem@thedotmack": true,
+    "superpowers@superpowers-marketplace": true,
+    "ralph-loop@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
   }
 }

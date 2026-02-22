@@ -5,6 +5,7 @@
   "permissions": {
     "allow": [
       "Read(./**)",
+
       "Bash(ls *)",
       "Bash(pytest *)",
       "Bash(python *)",
@@ -33,6 +34,7 @@
     "ask": [
       "Bash(uv remove *)",
       "Bash(uv tool install *)",
+
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
@@ -55,5 +57,17 @@
     "superpowers@superpowers-marketplace": true,
     "ralph-loop@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_pending.sh"
+          }
+        ]
+      }
+    ]
   }
 }

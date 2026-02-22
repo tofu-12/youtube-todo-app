@@ -1,0 +1,42 @@
+{
+  "enabledPlugins": {
+    "context7@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "claude-mem@thedotmack": true,
+    "superpowers@superpowers-marketplace": true,
+    "ralph-loop@claude-plugins-official": true
+  },
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./secrets/**)"
+    ],
+    "allow": [
+      "Read(./**)",
+      "Bash(ls *)",
+
+      "Bash(pytest *)",
+      "Bash(python *)",
+      "Bash(uv add *)",
+      "Bash(uv sync)",
+      "Bash(uv run pytest *)",
+      "Bash(uv run python *)",
+
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git status *)"
+    ],
+    "ask": [
+      "Bash(uv remove *)",
+      "Bash(uv tool install *)",
+
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ]
+  }
+}

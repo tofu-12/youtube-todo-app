@@ -1,0 +1,31 @@
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# 仮想環境
+.venv/
+venv/
+env/
+
+# 配布・ビルド
+dist/
+build/
+*.egg-info/
+
+# 環境変数
+.env
+.env.*
+
+# 機密データ
+secrets/*
+!secrets/.gitkeep

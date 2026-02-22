@@ -1,6 +1,6 @@
 ---
 name: slack-notify
-description: "Auto-check at every work stopping point: run `test -f .claude/slack-notify.enabled` - if enabled, detect language via `cat .claude/slack-notify.lang 2>/dev/null || echo en`, then send summary via `python .claude/slack-notify/scripts/notify_slack.py -m '...'`. Toggle with /slack-on /slack-off /slack-lang-en /slack-lang-jp."
+description: "Auto-check at every work stopping point: run `test -f .claude/slack-notify.enabled` - if enabled, detect language via `cat .claude/slack-notify.lang 2>/dev/null || echo en`, then always send a summary (work/plan/conversation) via `python .claude/slack-notify/scripts/notify_slack.py -m '...'`. Toggle with /slack-on /slack-off /slack-lang-en /slack-lang-jp."
 ---
 
 # Slack Notify Skill
@@ -38,7 +38,7 @@ cat .claude/slack-notify.lang 2>/dev/null || echo "en"
 |---|---|---|
 | `auto_edit` | Used Edit / Write / Bash for code changes | Send work summary |
 | `plan` | Only planning / design discussion, no code changes | Send plan summary |
-| `default` | Research, Q&A, conversation only | **Do not send** |
+| `default` | Research, Q&A, conversation only | Send conversation summary |
 
 ## Step 4: Send the notification
 
@@ -74,6 +74,18 @@ Slack通知機能の設計が完了しました。
 ```
 Completed design for Slack notification feature.
 Architecture: SKILL.md + scripts/notify_slack.py + /slack-on|off commands
+```
+
+**default — jp:**
+```
+認証エラーの原因について調査・回答しました。
+原因: トークンの有効期限切れ。対処法: 再発行して環境変数を更新。
+```
+
+**default — en:**
+```
+Investigated and answered a question about authentication errors.
+Cause: expired token. Fix: reissue and update the environment variable.
 ```
 
 ## Setup

@@ -27,3 +27,23 @@
 | Inline comments | 2 spaces after code, start with `# `. Avoid commenting self-evident code |
 | Comparison operators | Use `is` only for `None` and booleans; use `==` otherwise |
 | Comprehensions | Prefer list comprehensions and generator expressions |
+
+---
+
+# Slack Notification Rules
+
+Before ending every response, check if notifications are enabled:
+
+```bash
+test -f .claude/slack-notify/state/enabled && echo "enabled" || echo "disabled"
+```
+
+If **enabled**, write a 2-4 line summary to `.claude/slack-notify/state/pending_message`:
+
+```bash
+printf '%s' "<line1>\n<line2>" > .claude/slack-notify/state/pending_message
+```
+
+- Detect language from `state/lang` (default: `en` if missing)
+- Follow the message format in `.claude/slack-notify/SKILL.md`
+- The Stop hook sends this file automatically — do NOT call notify_slack.py directly

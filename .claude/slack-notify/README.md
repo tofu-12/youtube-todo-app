@@ -4,50 +4,23 @@ A self-contained Claude Code skill that sends Slack notifications when Claude ju
 
 ## Installation
 
-Copy the entire folder into your project or global Claude skills directory:
-
-```bash
-# Project-scoped
-cp -r slack-notify /path/to/your-project/.claude/slack-notify
-
-# Global (works across all projects)
-cp -r slack-notify ~/.claude/skills/slack-notify
-```
-
-Then copy the slash commands to activate them:
-
-```bash
-cp .claude/slack-notify/commands/*.md .claude/commands/
-```
-
-## Setup
-
-1. Copy the config template and fill in your credentials:
-
-```bash
-cp .claude/slack-notify/assets/config.json.template .claude/slack-notify/assets/config.json
-```
-
-2. Edit `assets/config.json`:
-
-```json
-{
-    "SLACK_BOT_TOKEN": "xoxb-your-token-here",
-    "SLACK_CHANNEL_ID": "C0123456789"
-}
-```
+1. Copy `.claude/slack-notify/` to your project's `.claude/` directory
+2. Run the installer:
+   ```bash
+   bash .claude/slack-notify/install.sh
+   ```
+3. Copy the config template and fill in credentials:
+   ```bash
+   cp .claude/slack-notify/assets/config.json.template \
+      .claude/slack-notify/assets/config.json
+   # Edit config.json: set SLACK_BOT_TOKEN and SLACK_CHANNEL_ID
+   ```
+4. Enable notifications:
+   ```
+   /slack-on
+   ```
 
 > **Note:** Invite your Slack bot to the target channel with `/invite @your-bot-name`.
-
-## Activation
-
-For Claude to auto-check at stopping points, add one line to your `CLAUDE.md`:
-
-```markdown
-At natural stopping points, follow .claude/slack-notify/SKILL.md for notification instructions.
-```
-
-Or install globally (`~/.claude/skills/slack-notify`) so the skill is always available.
 
 ## Commands
 

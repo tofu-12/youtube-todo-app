@@ -40,10 +40,12 @@ cat .claude/slack-notify/state/lang 2>/dev/null || echo "en"
 | `plan` | Only planning / design discussion, no code changes | Send plan summary |
 | `default` | Research, Q&A, conversation only | Send conversation summary |
 
-## Step 4: Send the notification
+## Step 4: Write the pending message
 
 ```bash
-python .claude/slack-notify/scripts/notify_slack.py -m "<summary>"
+printf '%s' "<summary>" > .claude/slack-notify/state/pending_message
+# The Stop hook (send_pending.sh) sends this automatically.
+# Do NOT call notify_slack.py directly.
 ```
 
 ## Message format

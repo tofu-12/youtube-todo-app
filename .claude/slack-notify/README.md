@@ -60,12 +60,12 @@ Or install globally (`~/.claude/skills/slack-notify`) so the skill is always ava
 
 ## How it works
 
-1. At every work stopping point, Claude checks `.claude/slack-notify.enabled`
+1. At every work stopping point, Claude checks `.claude/slack-notify/state/enabled`
 2. If enabled, Claude detects the session mode:
    - **auto_edit** — code was written or changed → sends a work summary
    - **plan** — planning/design only → sends a plan summary
    - **default** — research/Q&A only → sends a conversation summary
-3. Claude reads `.claude/slack-notify.lang` to determine the message language
+3. Claude reads `.claude/slack-notify/state/lang` to determine the message language
 4. Sends the message via `scripts/notify_slack.py`
 
 ## File structure
@@ -82,6 +82,8 @@ slack-notify/
 │   └── slack-lang-jp.md
 ├── scripts/
 │   └── notify_slack.py         # Standard library only, no dependencies
+├── state/
+│   └── .gitkeep
 └── assets/
     └── config.json.template    # Credentials template
 ```
@@ -92,8 +94,8 @@ These files are created at runtime and excluded from git via `.claude/.gitignore
 
 | File | Purpose |
 |---|---|
-| `.claude/slack-notify.enabled` | Exists when notifications are ON |
-| `.claude/slack-notify.lang` | Contains `en` or `jp` (default: `en`) |
+| `.claude/slack-notify/state/enabled` | Exists when notifications are ON |
+| `.claude/slack-notify/state/lang` | Contains `en` or `jp` (default: `en`) |
 
 ## Requirements
 

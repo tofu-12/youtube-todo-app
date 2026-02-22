@@ -1,6 +1,6 @@
 ---
 name: slack-notify
-description: "Auto-check at every work stopping point: run `test -f .claude/slack-notify.enabled` - if enabled, detect language via `cat .claude/slack-notify.lang 2>/dev/null || echo en`, then always send a summary (work/plan/conversation) via `python .claude/slack-notify/scripts/notify_slack.py -m '...'`. Toggle with /slack-on /slack-off /slack-lang-en /slack-lang-jp."
+description: "Use when reaching a natural work stopping point — after completing file edits, finishing planning, or before handing back to the user — to send a work summary to Slack. Toggle with /slack-on /slack-off /slack-lang-en /slack-lang-jp."
 ---
 
 # Slack Notify Skill
@@ -16,7 +16,7 @@ Send a Slack notification when work reaches a natural stopping point.
 ## Step 1: Check if notifications are enabled
 
 ```bash
-test -f .claude/slack-notify.enabled && echo "enabled" || echo "disabled"
+test -f .claude/slack-notify/state/enabled && echo "enabled" || echo "disabled"
 ```
 
 If the output is `disabled`, do nothing and continue.
@@ -24,7 +24,7 @@ If the output is `disabled`, do nothing and continue.
 ## Step 2: Detect language
 
 ```bash
-cat .claude/slack-notify.lang 2>/dev/null || echo "en"
+cat .claude/slack-notify/state/lang 2>/dev/null || echo "en"
 ```
 
 | Output | Language |

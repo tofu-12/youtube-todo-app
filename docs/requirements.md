@@ -16,6 +16,7 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 - ワークアウト履歴の記録（有効期限付き）
 - ワークアウトスケジュール管理
 - 本日の TODO リスト表示
+- ユーザー設定（日付切り替え時刻）
 
 ---
 
@@ -27,6 +28,9 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 | タグ | 動画を分類するラベル（例: "背中", "有酸素"） |
 | 有効期限 | ワークアウト記録の保持期限（日数で指定） |
 | スケジュール | 動画ごとの「最終実施日」と「次回予定日」の組み合わせ |
+| 日付切り替え時刻 | 「今日」の始まりとみなす時刻。例: 04:00 に設定すると、03:59 まで前日の TODO が表示される |
+| 論理的な今日 | 日付切り替え時刻を基準に算出した「現在の日付」 |
+| 繰り返しルール | 動画ごとに設定する実施頻度（none / daily / weekly / interval） |
 
 ---
 
@@ -46,25 +50,73 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 
 ### 3.3 ワークアウトスケジュール管理
 
-- **機能:** 「最後に行った日」「次回予定日」を設定する
-- **入力:** 動画 URL、最終実施日、次回日付 または `"daily"`
-- **ルール:** `"daily"` の場合は毎日 TODO に表示
+- **機能:** 動画に繰り返しルールを設定し、最終実施日から次回予定日を自動計算する
+- **入力:** 動画 URL、繰り返しルール（Video に設定）、最終実施日
+- **次回予定日の計算ルール:**
+
+| recurrence_type | 計算方法 |
+|---|---|
+| `none` | 自動計算なし（手動設定のみ） |
+| `daily` | 最終実施日 + 1日 |
+| `weekly` | 最終実施日以降の最も近い指定曜日 |
+| `interval` | 最終実施日 + N日 |
 
 ### 3.4 本日の TODO リスト表示
 
 - **機能:** 当日実施すべきワークアウトを一覧表示する
-- **表示条件:** 次回日付 <= 今日 かつ 有効期限内
+- **表示条件:** 次回日付 <= 論理的な今日 かつ 有効期限内
+- **論理的な今日の算出:** 現在時刻 >= ユーザーの日付切り替え時刻 → 当日、現在時刻 < 日付切り替え時刻 → 前日
 
 ---
 
 ## 4. Post-MVP 機能要件（将来拡張）
 
-### 4.1 ユーザー認証（Auth0）
+### 4.1 YouTube 動画メタデータ取得・保存
+
+- **概要:** YouTube Data API を用いて動画のメタデータを取得し、DB に保存する
+- **取得対象:** タイトル、動画時間（秒）、概要欄テキスト、サムネイル URL
+- **保存先:** `Video` テーブルに以下カラムを追加
+
+| カラム | 型 | 説明 |
+|---|---|---|
+| title | string | 動画タイトル |
+| duration_seconds | int | 動画時間（秒） |
+| description | string | 概要欄テキスト |
+| thumbnail_url | string | サムネイル URL |
+
+- **更新タイミング:** 動画登録時に自動取得。手動での再取得も可能とする
+
+### 4.2 ユーザー認証（Auth0）
 
 - FE: Auth0 ログイン画面（Auth.js 経由）
 - BE: JWT トークン検証
 
-### 4.2 AI 要約機能
+### 4.3 習慣度スコア
+
+- **概要:** 動画ごとに習慣化の度合いを 0〜1 のスコアで管理する
+- **データソース:** `TodoHistory` の `status`（completed / skipped）の履歴
+- **モデル:** NN 等を用いて過去の習慣度スコアと TodoHistory から次回実施有無を予測し、実際の結果（completed / skipped）をもとにスコアを更新する
+- **更新タイミング:** TODO 完了/スキップ記録時にバックグラウンドで再計算
+- **保存先:** `Video` テーブルに `habit_score`（float, 0〜1）カラムを追加
+
+### 4.4 ユーザーレベル・経験値（RPG 風）
+
+- **概要:** ワークアウトの実施や習慣度スコアの向上に応じて経験値（XP）が付与され、レベルが上がる RPG 風の成長システム
+- **保存先:** `User` テーブルに以下カラムを追加
+
+| カラム | 型 | 説明 |
+|---|---|---|
+| level | int | 現在のレベル（1〜） |
+| experience_points | int | 累積経験値（XP） |
+
+- **XP 付与ロジック（案）:**
+  - TODO を `completed` にした場合: 基本 XP を付与
+  - 習慣度スコアが高い動画を完了した場合: ボーナス XP を付与
+  - 連続実施（streak）達成時: ボーナス XP を付与
+- **レベルアップ:** 累積 XP が閾値を超えるとレベルアップ（閾値は別途設計）
+- **XP 計算への習慣度スコアの活用:** 習慣度スコア（4.3）が低い動画を完了した場合に高い XP を付与するなど、難易度に応じたメリハリをつける
+
+### 4.5 AI 要約機能（動画サマリー）
 
 | 選択肢 | 概要 |
 |---|---|
@@ -83,33 +135,75 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 
 ## 6. ドメインモデル
 
+### User（ユーザー）
+
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| day_change_time | time | NO | 日付切り替え時刻（デフォルト: 00:00） |
+| timezone | string | NO | IANA タイムゾーン名（デフォルト: `Asia/Tokyo`） |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+> MVP は 1 ユーザー固定のため、初回アクセス時に自動生成する。
+
 ### Video（動画）
 
-| フィールド | 型 | 説明 |
-|---|---|---|
-| id | UUID | 主キー |
-| url | string | YouTube URL |
-| tags | string[] | タグ一覧（最大 10 件） |
-| comment | string | メモ（任意） |
-| created_at | datetime | 登録日時 |
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| name | string | NO | 動画名（ユーザーが任意に命名） |
+| url | string | NO | YouTube URL |
+| tags | string[] | NO | タグ一覧（最大 10 件、空配列可） |
+| comment | string | YES | メモ（任意） |
+| last_performed_date | date | YES | 最終実施日（論理日付、NULL = 未実施） |
+| next_scheduled_date | date | YES | 次回予定日（論理日付、VideoRecurrence から自動計算） |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+### VideoRecurrence（繰り返しルール）
+
+Video と 1:1。繰り返し設定を Video テーブルから分離して管理する。
+
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| video_id | UUID | NO | FK（Video, UNIQUE） |
+| recurrence_type | enum | NO | `none` / `daily` / `weekly` / `interval` |
+| interval_days | int | YES | interval 時の日数（他は NULL） |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+### VideoWeekday（週次曜日設定）
+
+VideoRecurrence と 1:多。`recurrence_type = weekly` の場合のみ使用。
+
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| video_recurrence_id | UUID | NO | FK（VideoRecurrence） |
+| day_of_week | enum | NO | `MON` / `TUE` / `WED` / `THU` / `FRI` / `SAT` / `SUN` |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+### TodoHistory（TODO履歴）
+
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| video_id | UUID | NO | 対象動画 |
+| scheduled_date | date | NO | TODO として表示された日付（論理日付） |
+| status | enum | NO | `completed` / `skipped` |
 
 ### WorkoutHistory（ワークアウト履歴）
 
-| フィールド | 型 | 説明 |
-|---|---|---|
-| id | UUID | 主キー |
-| video_id | UUID | 対象動画 |
-| performed_at | date | 実施日 |
-| expires_at | date | 有効期限 |
-
-### WorkoutSchedule（スケジュール）
-
-| フィールド | 型 | 説明 |
-|---|---|---|
-| id | UUID | 主キー |
-| video_id | UUID | 対象動画 |
-| last_performed_at | date | 最終実施日 |
-| next_scheduled_at | date または "daily" | 次回予定 |
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| video_id | UUID | NO | 対象動画 |
+| performed_date | date | NO | 実施日（論理日付） |
+| performed_at | datetime | NO | 実施日時（UTC） |
+| expires_date | date | NO | 有効期限日（論理日付、この日まで有効） |
 
 ---
 
@@ -125,27 +219,43 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 | PUT | /api/videos/{id} | 動画更新 |
 | DELETE | /api/videos/{id} | 動画削除 |
 
+### VideoRecurrence（繰り返しルール）
+
+| メソッド | パス | 説明 |
+|---|---|---|
+| GET | /api/videos/{id}/recurrence | 繰り返しルール取得 |
+| PUT | /api/videos/{id}/recurrence | 繰り返しルール作成・更新 |
+| DELETE | /api/videos/{id}/recurrence | 繰り返しルール削除 |
+
 ### WorkoutHistories
 
 | メソッド | パス | 説明 |
 |---|---|---|
-| GET | /api/histories | 履歴一覧（有効期限フィルタ） |
-| POST | /api/histories | 履歴記録 |
-| DELETE | /api/histories/{id} | 履歴削除 |
+| GET | /api/workout-histories | 履歴一覧（有効期限フィルタ） |
+| POST | /api/workout-histories | 履歴記録 |
+| DELETE | /api/workout-histories/{id} | 履歴削除 |
 
-### WorkoutSchedules
+### TodoHistories
 
 | メソッド | パス | 説明 |
 |---|---|---|
-| GET | /api/schedules | スケジュール一覧 |
-| POST | /api/schedules | スケジュール作成 |
-| PUT | /api/schedules/{id} | スケジュール更新 |
+| GET | /api/todo-histories | TODO履歴一覧（日付フィルタ対応） |
+| POST | /api/todo-histories | TODO完了/スキップを記録 |
+| DELETE | /api/todo-histories/{id} | 記録を取り消す |
 
 ### Today's TODO
 
 | メソッド | パス | 説明 |
 |---|---|---|
 | GET | /api/today | 本日の TODO 一覧 |
+| GET | /api/overdue | 予定日超過の未実施動画一覧 |
+
+### User Settings
+
+| メソッド | パス | 説明 |
+|---|---|---|
+| GET | /api/settings | ユーザー設定取得 |
+| PUT | /api/settings | ユーザー設定更新（日付切り替え時刻など） |
 
 ---
 
@@ -154,6 +264,7 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 | 画面名 | URL | 内容 |
 |---|---|---|
 | TODO リスト | / | 本日実施すべき動画一覧 |
+| 未実施リスト | /overdue | 予定日を過ぎても未実施の動画一覧 |
 | 動画登録 | /videos/new | URL・タグ・コメント入力フォーム |
 | 動画一覧 | /videos | 登録済み動画の一覧 |
 | 動画詳細 | /videos/{id} | 動画情報・履歴・スケジュール |
@@ -164,4 +275,15 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 
 - YouTube URL は `youtube.com/watch?v=xxx` および `youtu.be/xxx` 形式を受け付ける
 - タグは 1 動画につき最大 10 個
-- `"daily"` スケジュールは毎日 TODO に表示される
+- `recurrence_type = daily` の場合、毎日 TODO に表示される
+- `recurrence_type = weekly` の場合、VideoWeekday に 1 件以上登録が必要
+- `recurrence_type = interval` の場合、`interval_days` は 1 以上の整数
+- `recurrence_type = none` の場合、`next_scheduled_date` は手動設定のみ
+- 日付切り替え時刻は `HH:MM` 形式（00:00〜23:59）で指定する
+- 日付切り替え時刻のデフォルト値は `00:00`（深夜0時）
+- 論理的な今日の算出はサーバーサイドで行い、`/api/today` のレスポンスに反映する
+- タイムゾーンは IANA タイムゾーン名（例: `Asia/Tokyo`, `UTC`）で指定する
+- `day_change_time` はユーザーの `timezone` 基準で評価する
+- `datetime` 型フィールドは UTC で保存し、表示時にユーザーの `timezone` へ変換する
+- `date` 型フィールドはユーザーの論理日付をそのまま保存する（UTC 変換なし）
+- `timezone` は原則変更不可。変更した場合、既存の `date` フィールドはすべてそのまま保持する（再計算しない）

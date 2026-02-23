@@ -38,17 +38,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_tools: >-
-            Bash(git status:*),
-            Bash(git fetch:*),
-            Bash(git pull:*),
-            Bash(git checkout:*),
-            Bash(git switch:*),
-            Bash(git branch:*),
-            Bash(git add:*),
-            Bash(git commit:*),
-            Bash(git push:*),
-            Bash(gh issue view:*),
-            Bash(gh pr create:*),
-            Bash(gh pr list:*),
-            Bash(gh repo view:*)
+          claude_args: >-
+            --allowedTools "Bash(git status:*),Bash(git fetch:*),Bash(git pull:*),Bash(git checkout:*),Bash(git switch:*),Bash(git branch:*),Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(gh issue view:*),Bash(gh pr create:*),Bash(gh pr list:*),Bash(gh repo view:*)"

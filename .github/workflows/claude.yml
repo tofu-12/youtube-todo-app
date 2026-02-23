@@ -6,7 +6,7 @@ on:
   pull_request_review_comment:
     types: [created]
   issues:
-    types: [opened, assigned]
+    types: [opened, edited, assigned]
   pull_request_review:
     types: [submitted]
 
@@ -28,24 +28,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Run Claude Code
-        id: claude
         uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          # This is an optional setting that allows Claude to read CI results on PRs
-          additional_permissions: |
-            actions: read
-
-          # Allow Claude to run git and gh CLI commands
           claude_args: >-
             --allowedTools
+            "Bash(git status:*)"
+            "Bash(git fetch:*)"
+            "Bash(git pull:*)"
+            "Bash(git checkout:*)"
+            "Bash(git switch:*)"
+            "Bash(git branch:*)"
             "Bash(git add:*)"
             "Bash(git commit:*)"
             "Bash(git push:*)"
-            "Bash(git status:*)"
+            "Bash(gh issue view:*)"
             "Bash(gh pr create:*)"
             "Bash(gh pr list:*)"
+            "Bash(gh repo view:*)"

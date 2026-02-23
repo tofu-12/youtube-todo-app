@@ -5,7 +5,6 @@
   "permissions": {
     "allow": [
       "Read(./**)",
-
       "Bash(ls *)",
       "Bash(pytest *)",
       "Bash(python *)",
@@ -17,14 +16,16 @@
       "Bash(git diff *)",
       "Bash(git show *)",
       "Bash(git status *)",
-
       "Bash(gh pr list *)",
       "Bash(gh pr view *)",
       "Bash(gh issue list *)",
       "Bash(gh issue view *)",
       "Bash(gh run list *)",
       "Bash(gh run view *)",
-      "Bash(gh repo view *)"
+      "Bash(gh repo view *)",
+      "Bash(test -f .claude/slack-notify/state/enabled*)",
+      "Bash(cat .claude/slack-notify/state/lang*)",
+      "Bash(.claude/slack-notify/scripts/write_pending.sh *)"
     ],
     "deny": [
       "Read(./.env)",
@@ -34,11 +35,9 @@
     "ask": [
       "Bash(uv remove *)",
       "Bash(uv tool install *)",
-
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
-      
       "Bash(gh pr create *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr review *)",

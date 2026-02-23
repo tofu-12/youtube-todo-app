@@ -16,8 +16,9 @@ python3 "$SKILL_DIR/scripts/setup/update_settings.py" \
 python3 "$SKILL_DIR/scripts/setup/update_claude_md.py" \
     "$PROJECT_DIR/CLAUDE.md"
 
-# Make send_pending.sh executable
+# Make scripts executable
 chmod +x "$SKILL_DIR/scripts/send_pending.sh"
+chmod +x "$SKILL_DIR/scripts/write_pending.sh"
 
 # Copy slash commands to .claude/commands/
 mkdir -p "$PROJECT_DIR/.claude/commands"

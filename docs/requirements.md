@@ -152,6 +152,7 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 | フィールド | 型 | Nullable | 説明 |
 |---|---|---|---|
 | id | UUID | NO | 主キー |
+| name | string | NO | 動画名（ユーザーが任意に命名） |
 | url | string | NO | YouTube URL |
 | tags | string[] | NO | タグ一覧（最大 10 件、空配列可） |
 | comment | string | YES | メモ（任意） |

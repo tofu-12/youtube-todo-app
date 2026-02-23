@@ -41,5 +41,11 @@ jobs:
             actions: read
 
           # Allow Claude to run git and gh CLI commands
-          claude_args: '--allowedTools Bash(git*),Bash(gh*)'
-
+          claude_args: >-
+            --allowedTools
+            Bash(git add:*)
+            Bash(git commit:*)
+            Bash(git push:*)
+            Bash(git status:*)
+            Bash(gh pr create:*)
+            Bash(gh pr list:*)

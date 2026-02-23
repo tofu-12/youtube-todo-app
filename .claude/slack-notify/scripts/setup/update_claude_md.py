@@ -16,7 +16,7 @@ test -f .claude/slack-notify/state/enabled && echo "enabled" || echo "disabled"
 If **enabled**, write a 2-4 line summary to `.claude/slack-notify/state/pending_message`:
 
 ```bash
-printf '%s' "<line1>\\n<line2>" > .claude/slack-notify/state/pending_message
+.claude/slack-notify/scripts/write_pending.sh "<line1>\\n<line2>"
 ```
 
 - Detect language from `state/lang` (default: `en` if missing)

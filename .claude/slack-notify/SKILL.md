@@ -43,7 +43,7 @@ cat .claude/slack-notify/state/lang 2>/dev/null || echo "en"
 ## Step 4: Write the pending message
 
 ```bash
-printf '%s' "<summary>" > .claude/slack-notify/state/pending_message
+.claude/slack-notify/scripts/write_pending.sh "<summary>"
 # The Stop hook (send_pending.sh) sends this automatically.
 # Do NOT call notify_slack.py directly.
 ```

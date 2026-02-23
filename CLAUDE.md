@@ -28,6 +28,12 @@
 | Comparison operators | Use `is` only for `None` and booleans; use `==` otherwise |
 | Comprehensions | Prefer list comprehensions and generator expressions |
 
+## Development Commands
+
+- Run tests: `uv run pytest ./path/to/tests`
+- Run Python scripts: `uv run python ./path/to/script.py`
+- Always use relative paths starting with `./` when specifying file or directory paths in commands.
+
 ---
 
 # Slack Notification Rules

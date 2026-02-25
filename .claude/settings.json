@@ -23,14 +23,12 @@
       "Bash(gh run list *)",
       "Bash(gh run view *)",
       "Bash(gh repo view *)",
-      "Bash(test -f .claude/slack-notify/state/enabled*)",
-      "Bash(cat .claude/slack-notify/state/lang*)",
-      "Bash(.claude/slack-notify/scripts/write_pending.sh *)"
+      "Bash(test -f .claude/slack-notify/state/enabled*)"
     ],
     "deny": [
       "Read(./.env)",
       "Read(./secrets/**)",
-      "Read(./.claude/slack-notify/assets/config.json)"
+      "Read(./.claude/slack-notify/assets/config.sh)"
     ],
     "ask": [
       "Bash(uv remove *)",
@@ -63,7 +61,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_pending.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_notification.sh"
           }
         ]
       }

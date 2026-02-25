@@ -8,4 +8,4 @@ Run this shell command to enable Slack notifications:
 mkdir -p .claude/slack-notify/state && touch .claude/slack-notify/state/enabled
 ```
 
-Then confirm to the user in Japanese: "Slack通知をONにしました。作業の区切りごとにSlackへ通知します。"
+Then confirm to the user: "Slack notifications enabled. A notification will be sent to Slack when Claude stops working."

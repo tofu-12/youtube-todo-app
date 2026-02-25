@@ -40,11 +40,12 @@ youtube-todo-app/
 │   │   │   ├── video_weekday.py
 │   │   │   ├── todo_history.py
 │   │   │   └── workout_history.py
-│   │   └── core/
-│   │       ├── config.py            ← 環境別設定（DevSettings / TestSettings）
-│   │       ├── database.py          ← SQLAlchemy engine / Session
-│   │       ├── dependencies.py      ← Depends(get_db) 等
-│   │       └── date.py              ← 論理的な今日の算出（横断的ユーティリティ）
+│   │   ├── core/
+│   │   │   ├── config.py            ← 環境別設定（DevSettings / TestSettings）
+│   │   │   ├── database.py          ← SQLAlchemy engine / Session
+│   │   │   ├── dependencies.py      ← Depends(get_db) 等
+│   │   │   └── date.py              ← 論理的な今日の算出（横断的ユーティリティ）
+│   │   └── main.py                      ← FastAPI app インスタンス
 │   ├── alembic/                     ← マイグレーション
 │   ├── tests/
 │   │   ├── unit/
@@ -55,8 +56,7 @@ youtube-todo-app/
 │   │   │   ├── test_today.py
 │   │   │   └── ...
 │   │   └── conftest.py
-│   ├── pyproject.toml
-│   └── main.py                      ← FastAPI app インスタンス
+│   └── pyproject.toml
 ├── frontend/
 │   ├── src/
 │   │   ├── app/                     ← Next.js App Router

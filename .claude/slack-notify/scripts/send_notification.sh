@@ -18,14 +18,39 @@ source "$CONFIG_FILE"
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(git -C "$SCRIPT_DIR" rev-parse --show-toplevel 2>/dev/null || echo "")}"
 REPO_NAME="$(basename "${PROJECT_DIR:-unknown}")"
 BRANCH="$(git -C "${PROJECT_DIR:-$SCRIPT_DIR}" symbolic-ref --short HEAD 2>/dev/null || echo "unknown")"
+TIMESTAMP="$(date '+%Y-%m-%d %H:%M')"
+
+PAYLOAD=$(cat <<EOF
+{
+  "channel": "$SLACK_CHANNEL_ID",
+  "attachments": [{
+    "color": "#2EB67D",
+    "blocks": [
+      {
+        "type": "header",
+        "text": {"type": "plain_text", "text": "Claude has stopped working"}
+      },
+      {
+        "type": "section",
+        "fields": [
+          {"type": "mrkdwn", "text": "*Repo*\n$REPO_NAME"},
+          {"type": "mrkdwn", "text": "*Branch*\n$BRANCH"},
+          {"type": "mrkdwn", "text": "*Time*\n$TIMESTAMP"}
+        ]
+      }
+    ]
+  }]
+}
+EOF
+)
 
 RESPONSE=$(curl -s -X POST https://slack.com/api/chat.postMessage \
     -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
     -H "Content-Type: application/json" \
-    -d "{\"channel\":\"$SLACK_CHANNEL_ID\",\"text\":\"[$REPO_NAME/$BRANCH] Claude has stopped working.\"}")
+    -d "$PAYLOAD")
 
 if [ $? -ne 0 ]; then
-    echo "Error: curl failed (network error?)"
+    echo "Error: curl failed"
     exit 1
 fi
 

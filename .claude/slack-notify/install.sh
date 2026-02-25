@@ -14,7 +14,7 @@ mkdir -p "$PROJECT_DIR/.claude/commands"
 cp "$SKILL_DIR/commands/"*.md "$PROJECT_DIR/.claude/commands/" 2>/dev/null || true
 
 # Update settings.json with Stop hook
-HOOK_COMMAND='bash "$CLAUDE_PROJECT_DIR"/.claude/slack-notify/scripts/send_notification.sh'
+HOOK_COMMAND='bash "$CLAUDE_PROJECT_DIR"/.claude/slack-notify/scripts/send_complete.sh'
 if [ -f "$SETTINGS_FILE" ] && command -v jq &>/dev/null; then
     ALREADY=$(jq --arg cmd "$HOOK_COMMAND" \
         '[.hooks.Stop // [] | .[].hooks[]? | select(.command == $cmd)] | length' \
@@ -31,7 +31,7 @@ if [ -f "$SETTINGS_FILE" ] && command -v jq &>/dev/null; then
 else
     echo ""
     echo "  [Manual step] Add the Stop hook to $SETTINGS_FILE:"
-    echo '  "hooks": { "Stop": [{ "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_notification.sh" }] }] }'
+    echo '  "hooks": { "Stop": [{ "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_complete.sh" }] }] }'
 fi
 
 echo ""

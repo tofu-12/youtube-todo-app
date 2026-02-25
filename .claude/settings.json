@@ -63,7 +63,18 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_notification.sh"
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_complete.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|idle_prompt|elicitation_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_alert.sh"
           }
         ]
       }

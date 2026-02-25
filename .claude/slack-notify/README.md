@@ -4,10 +4,14 @@ A self-contained Claude Code skill that sends a Slack notification when Claude s
 
 ## How it works
 
-When Claude's session ends (Stop hook), `scripts/send_notification.sh` runs automatically.
-It sends a fixed message to Slack: **"[repo-name] Claude has stopped working."**
+Two hooks send Slack notifications automatically:
 
-If `state/enabled` does not exist, no notification is sent.
+| Hook | Script | Trigger |
+|---|---|---|
+| `Stop` | `send_complete.sh` | Claudeが作業を終了したとき |
+| `Notification` | `send_alert.sh` | 権限ダイアログ表示時 / アイドル待ち時 |
+
+`state/enabled` が存在しない場合、通知は送信されません。
 
 ## Installation
 
@@ -48,7 +52,8 @@ slack-notify/
 │   ├── slack-on.md
 │   └── slack-off.md
 ├── scripts/
-│   └── send_notification.sh   ← curl-based, sends fixed message
+│   ├── send_complete.sh   ← Stop hook: 作業完了通知
+│   └── send_alert.sh          ← Notification hook: 権限/アイドル通知
 ├── assets/
 │   ├── config.sh.template     ← credentials template
 │   └── config.sh              ← gitignored (real credentials)

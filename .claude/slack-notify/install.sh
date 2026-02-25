@@ -13,25 +13,57 @@ echo "Installing slack-notify to: $PROJECT_DIR"
 mkdir -p "$PROJECT_DIR/.claude/commands"
 cp "$SKILL_DIR/commands/"*.md "$PROJECT_DIR/.claude/commands/" 2>/dev/null || true
 
-# Update settings.json with Stop hook
-HOOK_COMMAND='bash "$CLAUDE_PROJECT_DIR"/.claude/slack-notify/scripts/send_complete.sh'
-if [ -f "$SETTINGS_FILE" ] && command -v jq &>/dev/null; then
-    ALREADY=$(jq --arg cmd "$HOOK_COMMAND" \
-        '[.hooks.Stop // [] | .[].hooks[]? | select(.command == $cmd)] | length' \
-        "$SETTINGS_FILE")
-    if [ "$ALREADY" -gt 0 ]; then
-        echo "Stop hook already installed, skipping."
-    else
-        UPDATED=$(jq --arg cmd "$HOOK_COMMAND" \
-            '.hooks.Stop += [{"hooks": [{"type": "command", "command": $cmd}]}]' \
-            "$SETTINGS_FILE")
-        echo "$UPDATED" > "$SETTINGS_FILE"
-        echo "Updated: $SETTINGS_FILE"
-    fi
-else
+if [ ! -f "$SETTINGS_FILE" ] || ! command -v jq &>/dev/null; then
     echo ""
-    echo "  [Manual step] Add the Stop hook to $SETTINGS_FILE:"
-    echo '  "hooks": { "Stop": [{ "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_complete.sh" }] }] }'
+    echo "  [Manual step] Add to $SETTINGS_FILE:"
+    echo '  "hooks": {'
+    echo '    "Stop": [{ "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_complete.sh" }] }],'
+    echo '    "Notification": [{ "matcher": "permission_prompt|idle_prompt|elicitation_dialog", "hooks": [{ "type": "command", "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/slack-notify/scripts/send_alert.sh" }] }]'
+    echo '  }'
+    echo ""
+    echo "  Also add to permissions.allow:"
+    echo '  "Bash(test -f .claude/slack-notify/state/enabled*)"'
+    echo '  "Bash(mkdir -p .claude/slack-notify/state && touch .claude/slack-notify/state/enabled)"'
+    echo '  "Bash(rm -f .claude/slack-notify/state/enabled)"'
+    echo ""
+    echo "  And to permissions.deny:"
+    echo '  "Read(./.claude/slack-notify/assets/config.sh)"'
+else
+    STOP_CMD='bash "$CLAUDE_PROJECT_DIR"/.claude/slack-notify/scripts/send_complete.sh'
+    ALERT_CMD='bash "$CLAUDE_PROJECT_DIR"/.claude/slack-notify/scripts/send_alert.sh'
+
+    UPDATED=$(jq \
+        --arg stop "$STOP_CMD" \
+        --arg alert "$ALERT_CMD" '
+        # Stop hook (append if not already present)
+        if ([.hooks.Stop // [] | .[].hooks[]? | select(.command == $stop)] | length) == 0 then
+            .hooks.Stop += [{"hooks": [{"type": "command", "command": $stop}]}]
+        else . end |
+
+        # Notification hook (append if not already present)
+        if ([.hooks.Notification // [] | .[].hooks[]? | select(.command == $alert)] | length) == 0 then
+            .hooks.Notification += [{"matcher": "permission_prompt|idle_prompt|elicitation_dialog", "hooks": [{"type": "command", "command": $alert}]}]
+        else . end |
+
+        # permissions.allow
+        .permissions.allow = (
+            (.permissions.allow // []) +
+            ["Bash(test -f .claude/slack-notify/state/enabled*)",
+             "Bash(mkdir -p .claude/slack-notify/state && touch .claude/slack-notify/state/enabled)",
+             "Bash(rm -f .claude/slack-notify/state/enabled)"]
+            | unique
+        ) |
+
+        # permissions.deny
+        .permissions.deny = (
+            (.permissions.deny // []) +
+            ["Read(./.claude/slack-notify/assets/config.sh)"]
+            | unique
+        )
+    ' "$SETTINGS_FILE")
+
+    echo "$UPDATED" > "$SETTINGS_FILE"
+    echo "Updated: $SETTINGS_FILE"
 fi
 
 echo ""

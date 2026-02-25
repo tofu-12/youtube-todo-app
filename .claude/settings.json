@@ -16,9 +16,6 @@
       "Bash(git diff *)",
       "Bash(git show *)",
       "Bash(git status *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(git push *)",
       "Bash(gh pr list *)",
       "Bash(gh pr view *)",
       "Bash(gh issue list *)",
@@ -26,14 +23,9 @@
       "Bash(gh run list *)",
       "Bash(gh run view *)",
       "Bash(gh repo view *)",
-      "Bash(gh api *)",
-      "Bash(gh pr create *)",
-      "Bash(gh pr comment *)",
-      "Bash(gh issue create *)",
-      "Bash(gh issue comment *)",
       "Bash(test -f .claude/slack-notify/state/enabled*)",
-      "Bash(cat .claude/slack-notify/state/lang*)",
-      "Bash(test -f .claude/slack-notify/state/enabled*)"
+      "Bash(mkdir -p .claude/slack-notify/state && touch .claude/slack-notify/state/enabled)",
+      "Bash(rm -f .claude/slack-notify/state/enabled)"
     ],
     "deny": [
       "Read(./.env)",
@@ -43,8 +35,16 @@
     "ask": [
       "Bash(uv remove *)",
       "Bash(uv tool install *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh api *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr comment *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr review *)",
+      "Bash(gh issue create *)",
+      "Bash(gh issue comment *)",
       "Bash(gh issue close *)",
       "Bash(gh release create *)"
     ]

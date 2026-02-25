@@ -16,6 +16,9 @@
       "Bash(git diff *)",
       "Bash(git show *)",
       "Bash(git status *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
       "Bash(gh pr list *)",
       "Bash(gh pr view *)",
       "Bash(gh issue list *)",
@@ -23,6 +26,11 @@
       "Bash(gh run list *)",
       "Bash(gh run view *)",
       "Bash(gh repo view *)",
+      "Bash(gh api *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr comment *)",
+      "Bash(gh issue create *)",
+      "Bash(gh issue comment *)",
       "Bash(test -f .claude/slack-notify/state/enabled*)",
       "Bash(cat .claude/slack-notify/state/lang*)",
       "Bash(.claude/slack-notify/scripts/write_pending.sh *)"
@@ -35,18 +43,10 @@
     "ask": [
       "Bash(uv remove *)",
       "Bash(uv tool install *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(git push *)",
-      "Bash(gh pr create *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr review *)",
-      "Bash(gh issue create *)",
       "Bash(gh issue close *)",
-      "Bash(gh pr comment *)",
-      "Bash(gh issue comment *)",
-      "Bash(gh release create *)",
-      "Bash(gh api *)"
+      "Bash(gh release create *)"
     ]
   },
   "enabledPlugins": {

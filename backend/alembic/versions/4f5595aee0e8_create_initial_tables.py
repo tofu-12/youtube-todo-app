@@ -70,9 +70,6 @@ def upgrade() -> None:
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("url", sa.String(length=500), nullable=False),
-        sa.Column(
-            "tags", postgresql.ARRAY(sa.String()), nullable=False
-        ),
         sa.Column("comment", sa.Text(), nullable=True),
         sa.Column("last_performed_date", sa.Date(), nullable=True),
         sa.Column("next_scheduled_date", sa.Date(), nullable=True),
@@ -188,6 +185,63 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
 
+    # Tags
+    op.create_table(
+        "tags",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("user_id", sa.UUID(), nullable=False),
+        sa.Column("name", sa.String(length=50), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("user_id", "name", name="uq_tag_user_name"),
+    )
+
+    # Video Tags (junction table)
+    op.create_table(
+        "video_tags",
+        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("user_id", sa.UUID(), nullable=False),
+        sa.Column("video_id", sa.UUID(), nullable=False),
+        sa.Column("tag_id", sa.UUID(), nullable=False),
+        sa.Column(
+            "created_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
+        sa.Column(
+            "updated_at",
+            sa.DateTime(timezone=True),
+            server_default=sa.func.now(),
+            nullable=False,
+        ),
+        sa.ForeignKeyConstraint(
+            ["user_id"], ["users.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["video_id"], ["videos.id"], ondelete="CASCADE"
+        ),
+        sa.ForeignKeyConstraint(
+            ["tag_id"], ["tags.id"], ondelete="CASCADE"
+        ),
+        sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("video_id", "tag_id", name="uq_video_tag"),
+    )
+
     # Workout Histories
     op.create_table(
         "workout_histories",
@@ -225,6 +279,8 @@ def downgrade() -> None:
     """Drop all tables and enum types."""
     op.drop_table("workout_histories")
     op.drop_table("todo_histories")
+    op.drop_table("video_tags")
+    op.drop_table("tags")
     op.drop_table("video_weekdays")
     op.drop_table("video_recurrences")
     op.drop_table("videos")

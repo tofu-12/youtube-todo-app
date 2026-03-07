@@ -35,6 +35,12 @@ class User(TimestampMixin, Base):
     video_weekdays = relationship(
         "VideoWeekday", back_populates="user", cascade="all, delete-orphan"
     )
+    tags = relationship(
+        "Tag", back_populates="user", cascade="all, delete-orphan"
+    )
+    video_tags = relationship(
+        "VideoTag", back_populates="user", cascade="all, delete-orphan"
+    )
     todo_histories = relationship(
         "TodoHistory", back_populates="user", cascade="all, delete-orphan"
     )

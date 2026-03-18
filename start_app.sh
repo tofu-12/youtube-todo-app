@@ -11,6 +11,9 @@ until curl -sf http://localhost:8000/health > /dev/null 2>&1; do
     sleep 1
 done
 
+echo "==> Creating test database (if not exists)..."
+docker compose exec db psql -U user -d youtube_todo -c "CREATE DATABASE youtube_todo_test;" 2>/dev/null || true
+
 echo "==> Running database migrations..."
 docker compose exec backend uv run alembic upgrade head
 

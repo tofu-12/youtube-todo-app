@@ -33,7 +33,11 @@ class VideoWeekday(TimestampMixin, Base):
         nullable=False,
     )
     day_of_week: Mapped[DayOfWeek] = mapped_column(
-        Enum(DayOfWeek, name="day_of_week"),
+        Enum(
+            DayOfWeek,
+            name="day_of_week",
+            values_callable=lambda enum: [e.value for e in enum],
+        ),
         nullable=False,
     )
 

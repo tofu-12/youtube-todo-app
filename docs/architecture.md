@@ -28,23 +28,35 @@ youtube-todo-app/
 │   │   │   └── settings_service.py
 │   │   ├── crud/                    ← DB操作（SQLAlchemy）
 │   │   │   ├── schemas/             ← CRUD操作用スキーマ（内部データ構造）
+│   │   │   │   ├── user.py
 │   │   │   │   ├── video.py
-│   │   │   │   └── ...
+│   │   │   │   ├── recurrence.py
+│   │   │   │   ├── tag.py
+│   │   │   │   ├── todo_history.py
+│   │   │   │   └── workout_history.py
+│   │   │   ├── user.py
 │   │   │   ├── video.py
 │   │   │   ├── recurrence.py
-│   │   │   └── ...
+│   │   │   ├── tag.py
+│   │   │   ├── video_tag.py
+│   │   │   ├── todo_history.py
+│   │   │   └── workout_history.py
 │   │   ├── models/                  ← SQLAlchemy ORM モデル
+│   │   │   ├── base.py              ← 共通ベースモデル（TimestampMixin 等）
 │   │   │   ├── user.py
 │   │   │   ├── video.py
 │   │   │   ├── video_recurrence.py
 │   │   │   ├── video_weekday.py
+│   │   │   ├── tag.py
+│   │   │   ├── video_tag.py
 │   │   │   ├── todo_history.py
 │   │   │   └── workout_history.py
 │   │   ├── core/
-│   │   │   ├── config.py            ← 環境別設定（DevSettings / TestSettings）
 │   │   │   ├── database.py          ← SQLAlchemy engine / Session
 │   │   │   ├── dependencies.py      ← Depends(get_db) 等
+│   │   │   ├── types.py             ← Enum 定義（RecurrenceType / DayOfWeek / TodoStatus）
 │   │   │   └── date.py              ← 論理的な今日の算出（横断的ユーティリティ）
+│   │   ├── config.py                    ← 環境別設定（DevSettings / TestSettings）
 │   │   └── main.py                      ← FastAPI app インスタンス
 │   ├── alembic/                     ← マイグレーション
 │   ├── tests/
@@ -147,7 +159,7 @@ def get_logical_today(day_change_time, timezone) -> date:
 
 ## 3. 環境設定
 
-### `core/config.py` の構成
+### `config.py` の構成
 
 `.env` ファイルは使用しない。デフォルト値を pydantic-settings に直書きし、`ENV` 環境変数で切り替える。
 
@@ -245,32 +257,33 @@ ENV=test uv run pytest ./tests/
 
 ## 5. ローカル開発環境
 
-Docker Compose で PostgreSQL・FastAPI・Next.js をまとめて起動する。
+Docker Compose で PostgreSQL を起動する。バックエンドとフロントエンドはローカルで直接起動する。
 
 ```yaml
-# docker-compose.yml（概要）
+# docker-compose.yml
 services:
   db:
     image: postgres:16
     environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: youtube_todo
-
-  backend:
-    build: ./backend
-    command: uv run uvicorn app.main:app --reload
     ports:
-      - "8000:8000"
-    depends_on:
-      - db
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
 
-  frontend:
-    build: ./frontend
-    command: npm run dev
-    ports:
-      - "3000:3000"
+volumes:
+  db_data:
 ```
 
 ```bash
-# 起動コマンド
+# DB 起動
 docker compose up
+
+# バックエンド起動（ポート 8000）
+uv run uvicorn app.main:app --reload
+
+# フロントエンド起動（ポート 3000）
+npm run dev
 ```

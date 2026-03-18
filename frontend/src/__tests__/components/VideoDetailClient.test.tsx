@@ -143,7 +143,7 @@ describe("recurrence rule display", () => {
         workoutHistories={[]}
       />
     );
-    expect(screen.getByText("毎週（MON, FRI）")).toBeInTheDocument();
+    expect(screen.getByText("毎週（mon, fri）")).toBeInTheDocument();
   });
 });
 

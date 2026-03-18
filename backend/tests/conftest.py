@@ -51,41 +51,12 @@ def engine():
     eng.dispose()
 
 
-_CHECK_CONSTRAINT_SQL = """
-ALTER TABLE video_recurrences
-ADD CONSTRAINT ck_interval_days_required
-CHECK (
-    (recurrence_type != 'INTERVAL') OR
-    (interval_days IS NOT NULL AND interval_days >= 1)
-);
-"""
-
-
 @pytest.fixture(scope="session")
 def tables(engine):
-    """Create all tables and triggers, drop them after the session.
-
-    The CheckConstraint on video_recurrences uses lowercase enum values
-    in the model definition (for alembic compatibility), but create_all
-    generates PostgreSQL enum labels in uppercase (Python enum names).
-    We therefore remove the model-level constraint from the DDL and
-    re-apply it with the correct uppercase enum labels.
-    """
-    from app.models.video_recurrence import VideoRecurrence
-
-    # Temporarily remove check constraint from table metadata so
-    # create_all does not emit it with incorrect enum casing.
-    table = VideoRecurrence.__table__
-    ck = [c for c in table.constraints if getattr(c, "name", None) == "ck_interval_days_required"]
-    for c in ck:
-        table.constraints.discard(c)
-
+    """Create all tables and triggers, drop them after the session."""
     Base.metadata.create_all(engine)
 
     with engine.connect() as conn:
-        # Add check constraint with correct uppercase enum label.
-        conn.execute(text(_CHECK_CONSTRAINT_SQL))
-
         conn.execute(text(_TRIGGER_FUNCTION_SQL))
         for tbl in TABLES_WITH_UPDATED_AT:
             conn.execute(
@@ -102,10 +73,6 @@ def tables(engine):
                 )
             )
         conn.commit()
-
-    # Restore constraint so model introspection still works.
-    for c in ck:
-        table.constraints.add(c)
 
     yield
 

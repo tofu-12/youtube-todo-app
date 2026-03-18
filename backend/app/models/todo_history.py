@@ -36,7 +36,11 @@ class TodoHistory(TimestampMixin, Base):
         Date, nullable=False
     )
     status: Mapped[TodoStatus] = mapped_column(
-        Enum(TodoStatus, name="todo_status"),
+        Enum(
+            TodoStatus,
+            name="todo_status",
+            values_callable=lambda enum: [e.value for e in enum],
+        ),
         nullable=False,
     )
 

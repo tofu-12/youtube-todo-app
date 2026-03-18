@@ -8,13 +8,13 @@ export enum RecurrenceType {
 }
 
 export enum DayOfWeek {
-  MON = "MON",
-  TUE = "TUE",
-  WED = "WED",
-  THU = "THU",
-  FRI = "FRI",
-  SAT = "SAT",
-  SUN = "SUN",
+  MON = "mon",
+  TUE = "tue",
+  WED = "wed",
+  THU = "thu",
+  FRI = "fri",
+  SAT = "sat",
+  SUN = "sun",
 }
 
 export enum TodoStatus {

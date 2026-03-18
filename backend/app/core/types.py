@@ -15,13 +15,13 @@ class RecurrenceType(str, enum.Enum):
 class DayOfWeek(str, enum.Enum):
     """Days of the week."""
 
-    MON = "MON"
-    TUE = "TUE"
-    WED = "WED"
-    THU = "THU"
-    FRI = "FRI"
-    SAT = "SAT"
-    SUN = "SUN"
+    MON = "mon"
+    TUE = "tue"
+    WED = "wed"
+    THU = "thu"
+    FRI = "fri"
+    SAT = "sat"
+    SUN = "sun"
 
 
 class TodoStatus(str, enum.Enum):

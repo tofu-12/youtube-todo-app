@@ -35,7 +35,11 @@ class VideoRecurrence(TimestampMixin, Base):
         nullable=False,
     )
     recurrence_type: Mapped[RecurrenceType] = mapped_column(
-        Enum(RecurrenceType, name="recurrence_type"),
+        Enum(
+            RecurrenceType,
+            name="recurrence_type",
+            values_callable=lambda enum: [e.value for e in enum],
+        ),
         nullable=False,
     )
     interval_days: Mapped[Optional[int]] = mapped_column(

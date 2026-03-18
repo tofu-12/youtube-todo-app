@@ -25,7 +25,7 @@ class TestDayOfWeek:
 
     def test_day_of_week_values(self):
         """DayOfWeek has correct values for all 7 days."""
-        expected = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
+        expected = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
         actual = [d.value for d in DayOfWeek]
         assert actual == expected
 

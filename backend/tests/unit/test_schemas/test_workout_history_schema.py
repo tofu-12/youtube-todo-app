@@ -6,6 +6,7 @@ import uuid
 import pytest
 from pydantic import ValidationError
 
+from app.api.schemas.workout_history import WorkoutHistoryCreateRequest
 from app.crud.schemas.workout_history import (
     WorkoutHistoryFilter,
     WorkoutHistoryInsert,
@@ -37,6 +38,34 @@ class TestWorkoutHistoryInsert:
                 video_id=uuid.uuid4(),
                 performed_date=datetime.date(2026, 3, 18),
                 # missing performed_at and expires_date
+            )
+
+
+class TestWorkoutHistoryCreateRequest:
+    """Tests for WorkoutHistoryCreateRequest API schema."""
+
+    def test_valid_expires_days(self):
+        """WorkoutHistoryCreateRequest accepts positive expires_days."""
+        data = WorkoutHistoryCreateRequest(
+            video_id=uuid.uuid4(),
+            expires_days=1,
+        )
+        assert data.expires_days == 1
+
+    def test_zero_expires_days_rejected(self):
+        """WorkoutHistoryCreateRequest rejects zero expires_days."""
+        with pytest.raises(ValidationError):
+            WorkoutHistoryCreateRequest(
+                video_id=uuid.uuid4(),
+                expires_days=0,
+            )
+
+    def test_negative_expires_days_rejected(self):
+        """WorkoutHistoryCreateRequest rejects negative expires_days."""
+        with pytest.raises(ValidationError):
+            WorkoutHistoryCreateRequest(
+                video_id=uuid.uuid4(),
+                expires_days=-1,
             )
 
 

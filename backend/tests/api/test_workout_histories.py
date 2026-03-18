@@ -27,6 +27,29 @@ class TestCreateWorkoutHistory:
         assert "expires_date" in data
 
 
+    def test_create_with_zero_expires_days(self, client, sample_video):
+        """POST /api/workout-histories with expires_days=0 returns 422."""
+        payload = {
+            "video_id": str(sample_video.id),
+            "expires_days": 0,
+        }
+
+        response = client.post("/api/workout-histories", json=payload)
+
+        assert response.status_code == 422
+
+    def test_create_with_negative_expires_days(self, client, sample_video):
+        """POST /api/workout-histories with negative expires_days returns 422."""
+        payload = {
+            "video_id": str(sample_video.id),
+            "expires_days": -1,
+        }
+
+        response = client.post("/api/workout-histories", json=payload)
+
+        assert response.status_code == 422
+
+
 class TestDeleteWorkoutHistory:
     def test_delete(self, client, sample_video):
         """DELETE /api/workout-histories/{entry_id} returns 204."""

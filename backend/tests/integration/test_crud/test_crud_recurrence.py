@@ -121,15 +121,15 @@ class TestGetRecurrenceByVideo:
             recurrence_type=RecurrenceType.DAILY,
         )
         created = upsert_recurrence(db, data)
-        result = get_recurrence_by_video(db, sample_video.id)
+        result = get_recurrence_by_video(db, sample_video.id, sample_user.id)
 
         assert result is not None
         assert result.id == created.id
         assert result.recurrence_type == RecurrenceType.DAILY
 
-    def test_get_recurrence_by_video_not_found(self, db):
+    def test_get_recurrence_by_video_not_found(self, db, sample_user):
         """Getting a recurrence for a nonexistent video returns None."""
-        result = get_recurrence_by_video(db, uuid.uuid4())
+        result = get_recurrence_by_video(db, uuid.uuid4(), sample_user.id)
         assert result is None
 
 
@@ -145,9 +145,9 @@ class TestDeleteRecurrence:
         )
         upsert_recurrence(db, data)
 
-        assert delete_recurrence(db, sample_video.id) is True
-        assert get_recurrence_by_video(db, sample_video.id) is None
+        assert delete_recurrence(db, sample_video.id, sample_user.id) is True
+        assert get_recurrence_by_video(db, sample_video.id, sample_user.id) is None
 
-    def test_delete_recurrence_not_found(self, db):
+    def test_delete_recurrence_not_found(self, db, sample_user):
         """Deleting a nonexistent recurrence returns False."""
-        assert delete_recurrence(db, uuid.uuid4()) is False
+        assert delete_recurrence(db, uuid.uuid4(), sample_user.id) is False

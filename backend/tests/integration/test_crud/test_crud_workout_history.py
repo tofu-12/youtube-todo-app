@@ -119,8 +119,8 @@ class TestDeleteWorkoutHistory:
             expires_date=datetime.date(2026, 3, 25),
         )
         entry = create_workout_history(db, data)
-        assert delete_workout_history(db, entry.id) is True
+        assert delete_workout_history(db, entry.id, sample_user.id) is True
 
-    def test_delete_workout_history_not_found(self, db):
+    def test_delete_workout_history_not_found(self, db, sample_user):
         """Deleting a nonexistent workout history entry returns False."""
-        assert delete_workout_history(db, uuid.uuid4()) is False
+        assert delete_workout_history(db, uuid.uuid4(), sample_user.id) is False

@@ -83,7 +83,7 @@ def delete_workout_history(
     user: UserResponse = Depends(get_current_user),
 ) -> None:
     """Delete a workout history entry."""
-    if not crud_workout_history.delete_workout_history(db, entry_id):
+    if not crud_workout_history.delete_workout_history(db, entry_id, user.id):
         raise HTTPException(
             status_code=404, detail="Workout history entry not found"
         )

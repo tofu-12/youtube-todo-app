@@ -106,8 +106,8 @@ class TestDeleteTodoHistory:
             status=TodoStatus.COMPLETED,
         )
         entry = create_todo_history(db, data)
-        assert delete_todo_history(db, entry.id) is True
+        assert delete_todo_history(db, entry.id, sample_user.id) is True
 
-    def test_delete_todo_history_not_found(self, db):
+    def test_delete_todo_history_not_found(self, db, sample_user):
         """Deleting a nonexistent todo history entry returns False."""
-        assert delete_todo_history(db, uuid.uuid4()) is False
+        assert delete_todo_history(db, uuid.uuid4(), sample_user.id) is False

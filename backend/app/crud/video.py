@@ -24,9 +24,12 @@ def create_video(db: Session, data: VideoInsert) -> VideoResponse:
     return VideoResponse.model_validate(video)
 
 
-def get_video(db: Session, video_id: uuid.UUID) -> Optional[VideoResponse]:
-    """Get a video by ID."""
-    video = db.get(Video, video_id)
+def get_video(
+    db: Session, video_id: uuid.UUID, user_id: uuid.UUID
+) -> Optional[VideoResponse]:
+    """Get a video by ID, scoped to the given user."""
+    stmt = select(Video).where(Video.id == video_id, Video.user_id == user_id)
+    video = db.scalars(stmt).first()
     if video is None:
         return None
     return VideoResponse.model_validate(video)
@@ -40,10 +43,11 @@ def get_videos(db: Session, filter_: VideoFilter) -> list[VideoResponse]:
 
 
 def update_video(
-    db: Session, video_id: uuid.UUID, data: VideoUpdate
+    db: Session, video_id: uuid.UUID, data: VideoUpdate, user_id: uuid.UUID
 ) -> Optional[VideoResponse]:
-    """Update a video."""
-    video = db.get(Video, video_id)
+    """Update a video, scoped to the given user."""
+    stmt = select(Video).where(Video.id == video_id, Video.user_id == user_id)
+    video = db.scalars(stmt).first()
     if video is None:
         return None
     update_data = data.model_dump(exclude_unset=True)
@@ -54,9 +58,12 @@ def update_video(
     return VideoResponse.model_validate(video)
 
 
-def delete_video(db: Session, video_id: uuid.UUID) -> bool:
-    """Delete a video. Returns True if deleted, False if not found."""
-    video = db.get(Video, video_id)
+def delete_video(
+    db: Session, video_id: uuid.UUID, user_id: uuid.UUID
+) -> bool:
+    """Delete a video, scoped to the given user."""
+    stmt = select(Video).where(Video.id == video_id, Video.user_id == user_id)
+    video = db.scalars(stmt).first()
     if video is None:
         return False
     db.delete(video)

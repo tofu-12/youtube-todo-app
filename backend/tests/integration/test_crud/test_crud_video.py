@@ -47,17 +47,17 @@ class TestCreateVideo:
 class TestGetVideo:
     """Tests for get_video."""
 
-    def test_get_video_found(self, db, sample_video):
+    def test_get_video_found(self, db, sample_user, sample_video):
         """Getting an existing video returns correct data."""
-        result = get_video(db, sample_video.id)
+        result = get_video(db, sample_video.id, sample_user.id)
 
         assert result is not None
         assert result.id == sample_video.id
         assert result.name == sample_video.name
 
-    def test_get_video_not_found(self, db):
+    def test_get_video_not_found(self, db, sample_user):
         """Getting a nonexistent video returns None."""
-        result = get_video(db, uuid.uuid4())
+        result = get_video(db, uuid.uuid4(), sample_user.id)
         assert result is None
 
 
@@ -94,43 +94,43 @@ class TestGetVideos:
 class TestUpdateVideo:
     """Tests for update_video."""
 
-    def test_update_video_name(self, db, sample_video):
+    def test_update_video_name(self, db, sample_user, sample_video):
         """Updating a video name changes only that field."""
         data = VideoUpdate(name="New Name")
-        result = update_video(db, sample_video.id, data)
+        result = update_video(db, sample_video.id, data, sample_user.id)
 
         assert result is not None
         assert result.name == "New Name"
         assert result.url == sample_video.url
 
-    def test_update_video_schedule_dates(self, db, sample_video):
+    def test_update_video_schedule_dates(self, db, sample_user, sample_video):
         """Updating schedule dates stores them correctly."""
         today = datetime.date.today()
         data = VideoUpdate(
             last_performed_date=today,
             next_scheduled_date=today + datetime.timedelta(days=3),
         )
-        result = update_video(db, sample_video.id, data)
+        result = update_video(db, sample_video.id, data, sample_user.id)
 
         assert result is not None
         assert result.last_performed_date == today
         assert result.next_scheduled_date == today + datetime.timedelta(days=3)
 
-    def test_update_video_not_found(self, db):
+    def test_update_video_not_found(self, db, sample_user):
         """Updating a nonexistent video returns None."""
         data = VideoUpdate(name="X")
-        result = update_video(db, uuid.uuid4(), data)
+        result = update_video(db, uuid.uuid4(), data, sample_user.id)
         assert result is None
 
 
 class TestDeleteVideo:
     """Tests for delete_video."""
 
-    def test_delete_video(self, db, sample_video):
+    def test_delete_video(self, db, sample_user, sample_video):
         """Deleting an existing video returns True and removes it."""
-        assert delete_video(db, sample_video.id) is True
-        assert get_video(db, sample_video.id) is None
+        assert delete_video(db, sample_video.id, sample_user.id) is True
+        assert get_video(db, sample_video.id, sample_user.id) is None
 
-    def test_delete_video_not_found(self, db):
+    def test_delete_video_not_found(self, db, sample_user):
         """Deleting a nonexistent video returns False."""
-        assert delete_video(db, uuid.uuid4()) is False
+        assert delete_video(db, uuid.uuid4(), sample_user.id) is False

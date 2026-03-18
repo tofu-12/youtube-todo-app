@@ -24,7 +24,7 @@ def get_recurrence(
     user: UserResponse = Depends(get_current_user),
 ) -> RecurrenceOut:
     """Get recurrence rule for a video."""
-    result = crud_recurrence.get_recurrence_by_video(db, video_id)
+    result = crud_recurrence.get_recurrence_by_video(db, video_id, user.id)
     if result is None:
         raise HTTPException(status_code=404, detail="Recurrence not found")
     return RecurrenceOut(
@@ -48,6 +48,8 @@ def upsert_recurrence(
     result = recurrence_service.upsert_video_recurrence(
         db, user.id, video_id, data
     )
+    if result is None:
+        raise HTTPException(status_code=404, detail="Video not found")
     return RecurrenceOut(
         id=result.id,
         recurrence_type=result.recurrence_type,
@@ -65,5 +67,5 @@ def delete_recurrence(
     user: UserResponse = Depends(get_current_user),
 ) -> None:
     """Delete recurrence rule for a video."""
-    if not crud_recurrence.delete_recurrence(db, video_id):
+    if not crud_recurrence.delete_recurrence(db, video_id, user.id):
         raise HTTPException(status_code=404, detail="Recurrence not found")

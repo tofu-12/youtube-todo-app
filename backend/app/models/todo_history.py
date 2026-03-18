@@ -7,7 +7,7 @@ from sqlalchemy import Date, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
-from app.constants.enums import TodoStatus
+from app.core.types import TodoStatus
 from app.models.base import TimestampMixin
 
 

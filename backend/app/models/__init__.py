@@ -1,7 +1,7 @@
 """SQLAlchemy ORM models package."""
 
 from app.core.database import Base
-from app.constants.enums import DayOfWeek, RecurrenceType, TodoStatus
+from app.core.types import DayOfWeek, RecurrenceType, TodoStatus
 from app.models.tag import Tag
 from app.models.todo_history import TodoHistory
 from app.models.user import User

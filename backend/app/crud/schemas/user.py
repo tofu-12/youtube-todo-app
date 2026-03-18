@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -16,8 +17,8 @@ class UserInsert(BaseModel):
 class UserUpdate(BaseModel):
     """Schema for updating user settings."""
 
-    day_change_time: datetime.time | None = None
-    timezone: str | None = None
+    day_change_time: Optional[datetime.time] = None
+    timezone: Optional[str] = None
 
 
 class UserResponse(BaseModel):

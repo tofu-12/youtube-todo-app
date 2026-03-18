@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -20,7 +21,7 @@ class WorkoutHistoryFilter(BaseModel):
     """Schema for filtering workout history entries."""
 
     user_id: uuid.UUID
-    expires_after: datetime.date | None = None
+    expires_after: Optional[datetime.date] = None
 
 
 class WorkoutHistoryResponse(BaseModel):

@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -21,7 +22,7 @@ class TodoHistoryFilter(BaseModel):
     """Schema for filtering todo history entries."""
 
     user_id: uuid.UUID
-    scheduled_date: datetime.date | None = None
+    scheduled_date: Optional[datetime.date] = None
 
 
 class TodoHistoryResponse(BaseModel):

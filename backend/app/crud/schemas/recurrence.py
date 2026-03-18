@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -14,7 +15,7 @@ class RecurrenceUpsert(BaseModel):
     user_id: uuid.UUID
     video_id: uuid.UUID
     recurrence_type: RecurrenceType
-    interval_days: int | None = None
+    interval_days: Optional[int] = None
     weekdays: list[DayOfWeek] = []
 
 
@@ -38,7 +39,7 @@ class RecurrenceResponse(BaseModel):
     user_id: uuid.UUID
     video_id: uuid.UUID
     recurrence_type: RecurrenceType
-    interval_days: int | None
+    interval_days: Optional[int]
     weekdays: list[WeekdayResponse]
     created_at: datetime.datetime
     updated_at: datetime.datetime

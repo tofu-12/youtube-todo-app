@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -12,17 +13,17 @@ class VideoInsert(BaseModel):
     user_id: uuid.UUID
     name: str
     url: str
-    comment: str | None = None
+    comment: Optional[str] = None
 
 
 class VideoUpdate(BaseModel):
     """Schema for updating a video."""
 
-    name: str | None = None
-    url: str | None = None
-    comment: str | None = None
-    last_performed_date: datetime.date | None = None
-    next_scheduled_date: datetime.date | None = None
+    name: Optional[str] = None
+    url: Optional[str] = None
+    comment: Optional[str] = None
+    last_performed_date: Optional[datetime.date] = None
+    next_scheduled_date: Optional[datetime.date] = None
 
 
 class VideoFilter(BaseModel):
@@ -40,8 +41,8 @@ class VideoResponse(BaseModel):
     user_id: uuid.UUID
     name: str
     url: str
-    comment: str | None
-    last_performed_date: datetime.date | None
-    next_scheduled_date: datetime.date | None
+    comment: Optional[str]
+    last_performed_date: Optional[datetime.date]
+    next_scheduled_date: Optional[datetime.date]
     created_at: datetime.datetime
     updated_at: datetime.datetime

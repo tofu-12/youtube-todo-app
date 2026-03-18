@@ -1,6 +1,7 @@
 """CRUD operations for User model."""
 
 import uuid
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -18,7 +19,7 @@ def create_user(db: Session, data: UserInsert) -> UserResponse:
     return UserResponse.model_validate(user)
 
 
-def get_user(db: Session, user_id: uuid.UUID) -> UserResponse | None:
+def get_user(db: Session, user_id: uuid.UUID) -> Optional[UserResponse]:
     """Get a user by ID."""
     user = db.get(User, user_id)
     if user is None:
@@ -28,7 +29,7 @@ def get_user(db: Session, user_id: uuid.UUID) -> UserResponse | None:
 
 def update_user(
     db: Session, user_id: uuid.UUID, data: UserUpdate
-) -> UserResponse | None:
+) -> Optional[UserResponse]:
     """Update user settings."""
     user = db.get(User, user_id)
     if user is None:

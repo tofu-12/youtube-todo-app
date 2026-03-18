@@ -1,6 +1,7 @@
 """CRUD operations for Video model."""
 
 import uuid
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -23,7 +24,7 @@ def create_video(db: Session, data: VideoInsert) -> VideoResponse:
     return VideoResponse.model_validate(video)
 
 
-def get_video(db: Session, video_id: uuid.UUID) -> VideoResponse | None:
+def get_video(db: Session, video_id: uuid.UUID) -> Optional[VideoResponse]:
     """Get a video by ID."""
     video = db.get(Video, video_id)
     if video is None:
@@ -40,7 +41,7 @@ def get_videos(db: Session, filter_: VideoFilter) -> list[VideoResponse]:
 
 def update_video(
     db: Session, video_id: uuid.UUID, data: VideoUpdate
-) -> VideoResponse | None:
+) -> Optional[VideoResponse]:
     """Update a video."""
     video = db.get(Video, video_id)
     if video is None:

@@ -1,6 +1,7 @@
 """CRUD operations for VideoRecurrence and VideoWeekday models."""
 
 import uuid
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -53,7 +54,7 @@ def upsert_recurrence(
 
 def get_recurrence_by_video(
     db: Session, video_id: uuid.UUID
-) -> RecurrenceResponse | None:
+) -> Optional[RecurrenceResponse]:
     """Get recurrence rule for a video."""
     stmt = select(VideoRecurrence).where(
         VideoRecurrence.video_id == video_id

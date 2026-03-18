@@ -175,6 +175,8 @@ Video と 1:1。繰り返し設定を Video テーブルから分離して管理
 | created_at | datetime | NO | 登録日時（UTC） |
 | updated_at | datetime | NO | 更新日時（UTC） |
 
+> チェック制約: `recurrence_type = 'interval'` の場合、`interval_days IS NOT NULL AND interval_days >= 1` が必須
+
 ### VideoWeekday（週次曜日設定）
 
 VideoRecurrence と 1:多。`recurrence_type = weekly` の場合のみ使用。
@@ -229,6 +231,8 @@ Video と Tag の多対多リレーションを管理する中間テーブル。
 | created_at | datetime | NO | 登録日時（UTC） |
 | updated_at | datetime | NO | 更新日時（UTC） |
 
+> ユニーク制約: `(video_id, scheduled_date)` — 同一動画・同一日付の重複記録を防止
+
 ### WorkoutHistory（ワークアウト履歴）
 
 | フィールド | 型 | Nullable | 説明 |
@@ -241,6 +245,8 @@ Video と Tag の多対多リレーションを管理する中間テーブル。
 | expires_date | date | NO | 有効期限日（論理日付、この日まで有効） |
 | created_at | datetime | NO | 登録日時（UTC） |
 | updated_at | datetime | NO | 更新日時（UTC） |
+
+> ユニーク制約: `(video_id, performed_date)` — 同一動画・同一日付の重複記録を防止
 
 ### カスケード削除ルール
 
@@ -304,6 +310,12 @@ Video と Tag の多対多リレーションを管理する中間テーブル。
 |---|---|---|
 | GET | /api/settings | ユーザー設定取得 |
 | PUT | /api/settings | ユーザー設定更新（日付切り替え時刻など） |
+
+### Health Check
+
+| メソッド | パス | 説明 |
+|---|---|---|
+| GET | /health | ヘルスチェック（サーバー死活監視） |
 
 ---
 

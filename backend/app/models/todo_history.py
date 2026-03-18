@@ -3,7 +3,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import Date, Enum, ForeignKey
+from sqlalchemy import Date, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -15,6 +15,13 @@ class TodoHistory(TimestampMixin, Base):
     """Record of a todo item being completed or skipped."""
 
     __tablename__ = "todo_histories"
+    __table_args__ = (
+        UniqueConstraint(
+            "video_id",
+            "scheduled_date",
+            name="uq_todo_history_video_date",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True, default=uuid.uuid4

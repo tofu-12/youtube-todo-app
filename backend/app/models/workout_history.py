@@ -3,7 +3,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import Date, DateTime, ForeignKey
+from sqlalchemy import Date, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -14,6 +14,13 @@ class WorkoutHistory(TimestampMixin, Base):
     """Record of a workout session performed by the user."""
 
     __tablename__ = "workout_histories"
+    __table_args__ = (
+        UniqueConstraint(
+            "video_id",
+            "performed_date",
+            name="uq_workout_history_video_date",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True, default=uuid.uuid4

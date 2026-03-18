@@ -2,6 +2,7 @@
 
 import datetime
 import uuid
+from typing import Optional
 
 from sqlalchemy import Date, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -23,11 +24,11 @@ class Video(TimestampMixin, Base):
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
-    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
-    last_performed_date: Mapped[datetime.date | None] = mapped_column(
+    comment: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    last_performed_date: Mapped[Optional[datetime.date]] = mapped_column(
         Date, nullable=True
     )
-    next_scheduled_date: Mapped[datetime.date | None] = mapped_column(
+    next_scheduled_date: Mapped[Optional[datetime.date]] = mapped_column(
         Date, nullable=True
     )
 

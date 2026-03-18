@@ -1,6 +1,7 @@
 """VideoRecurrence model definition."""
 
 import uuid
+from typing import Optional
 
 from sqlalchemy import CheckConstraint, Enum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -37,7 +38,7 @@ class VideoRecurrence(TimestampMixin, Base):
         Enum(RecurrenceType, name="recurrence_type"),
         nullable=False,
     )
-    interval_days: Mapped[int | None] = mapped_column(
+    interval_days: Mapped[Optional[int]] = mapped_column(
         Integer, nullable=True
     )
 

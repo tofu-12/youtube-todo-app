@@ -5,16 +5,18 @@
 | レイヤー | 採用技術 | バージョン |
 |---|---|---|
 | バックエンド言語 | Python | 3.13 |
-| バックエンド FW | FastAPI | ^0.115 |
-| ASGI サーバー | Uvicorn | ^0.34 |
-| ORM | SQLAlchemy | ^2.0 |
-| マイグレーション | Alembic | ^1.13 |
-| バリデーション | Pydantic | ^2.0（FastAPI 同梱） |
+| バックエンド FW | FastAPI | >=0.115 |
+| ASGI サーバー | Uvicorn | >=0.34 |
+| ORM | SQLAlchemy | >=2.0 |
+| マイグレーション | Alembic | >=1.13 |
+| バリデーション | Pydantic | >=2.0（FastAPI 同梱） |
+| 設定管理 | pydantic-settings | >=2.0 |
+| PostgreSQL ドライバ | psycopg2-binary | >=2.9 |
 | フロントエンド言語 | TypeScript | ^5.0 |
 | フロントエンド FW | Next.js | ^15 |
 | スタイリング | Tailwind CSS | ^3.0 |
-| DB | PostgreSQL | ^16 |
-| パッケージ管理（BE） | UV | 最新 |
+| DB | PostgreSQL | 16 |
+| パッケージ管理（BE） | uv | 最新 |
 
 ---
 
@@ -89,6 +91,13 @@
 - FastAPI との相性が最良
 - Alembic でマイグレーション管理・スキーマ変更を追跡可能
 - 情報量・安定性・エコシステムが Python ORM 中最多
+
+### 2.5 開発依存（dev dependencies）
+
+| ライブラリ | バージョン | 用途 |
+|---|---|---|
+| pytest | >=8.0 | テストフレームワーク |
+| httpx | >=0.27 | テスト用 HTTP クライアント（FastAPI TestClient） |
 
 ---
 

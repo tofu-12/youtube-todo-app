@@ -12,22 +12,22 @@
 youtube-todo-app/
 ├── backend/
 │   ├── app/
-│   │   ├── api/                     ← FastAPI Routers（リソース単位）
-│   │   │   ├── schemas/             ← APIエンドポイント用スキーマ（Request/Response）
+│   │   ├── api/                           # FastAPI Routers（リソース単位）
+│   │   │   ├── schemas/                   # APIエンドポイント用スキーマ（Request/Response）
 │   │   │   │   ├── video.py
 │   │   │   │   └── ...
 │   │   │   ├── videos.py
 │   │   │   ├── recurrences.py
 │   │   │   ├── workout_histories.py
 │   │   │   ├── todo_histories.py
-│   │   │   ├── today.py             ← /today, /overdue
+│   │   │   ├── today.py                   # /today, /overdue
 │   │   │   └── settings.py
-│   │   ├── services/                ← ビジネスロジック
+│   │   ├── services/                      # ビジネスロジック
 │   │   │   ├── video_service.py
-│   │   │   ├── recurrence_service.py  ← next_scheduled_date 計算
+│   │   │   ├── recurrence_service.py      # next_scheduled_date 計算
 │   │   │   └── settings_service.py
-│   │   ├── crud/                    ← DB操作（SQLAlchemy）
-│   │   │   ├── schemas/             ← CRUD操作用スキーマ（内部データ構造）
+│   │   ├── crud/                          # DB操作（SQLAlchemy）
+│   │   │   ├── schemas/                   # CRUD操作用スキーマ（内部データ構造）
 │   │   │   │   ├── user.py
 │   │   │   │   ├── video.py
 │   │   │   │   ├── recurrence.py
@@ -41,8 +41,8 @@ youtube-todo-app/
 │   │   │   ├── video_tag.py
 │   │   │   ├── todo_history.py
 │   │   │   └── workout_history.py
-│   │   ├── models/                  ← SQLAlchemy ORM モデル
-│   │   │   ├── base.py              ← 共通ベースモデル（TimestampMixin 等）
+│   │   ├── models/                        # SQLAlchemy ORM モデル
+│   │   │   ├── base.py                    # 共通ベースモデル（TimestampMixin 等）
 │   │   │   ├── user.py
 │   │   │   ├── video.py
 │   │   │   ├── video_recurrence.py
@@ -52,41 +52,62 @@ youtube-todo-app/
 │   │   │   ├── todo_history.py
 │   │   │   └── workout_history.py
 │   │   ├── core/
-│   │   │   ├── database.py          ← SQLAlchemy engine / Session
-│   │   │   ├── dependencies.py      ← Depends(get_db) 等
-│   │   │   ├── types.py             ← Enum 定義（RecurrenceType / DayOfWeek / TodoStatus）
-│   │   │   └── date.py              ← 論理的な今日の算出（横断的ユーティリティ）
-│   │   ├── config.py                    ← 環境別設定（DevSettings / TestSettings）
-│   │   └── main.py                      ← FastAPI app インスタンス
-│   ├── alembic/                     ← マイグレーション
+│   │   │   ├── database.py                # SQLAlchemy engine / Session
+│   │   │   ├── dependencies.py            # Depends(get_db) 等
+│   │   │   ├── types.py                   # Enum 定義（RecurrenceType / DayOfWeek / TodoStatus）
+│   │   │   └── date.py                    # 論理的な今日の算出（横断的ユーティリティ）
+│   │   ├── config.py                      # 環境別設定（DevSettings / TestSettings）
+│   │   └── main.py                        # FastAPI app インスタンス（/health 含む）
+│   ├── alembic/                           # マイグレーション
+│   ├── Dockerfile                         # バックエンド用 Docker イメージ
 │   ├── tests/
 │   │   ├── unit/
-│   │   │   ├── test_date.py
-│   │   │   └── test_recurrence.py
+│   │   │   ├── test_config.py             # 環境設定のテスト
+│   │   │   ├── test_models.py             # ORM モデル定義のテスト
+│   │   │   ├── test_types.py              # Enum 型のテスト
+│   │   │   ├── test_unique_constraints.py # ユニーク制約のテスト
+│   │   │   └── test_schemas/              # スキーマバリデーションのテスト
+│   │   │       ├── test_recurrence_schema.py
+│   │   │       ├── test_tag_schema.py
+│   │   │       ├── test_todo_history_schema.py
+│   │   │       ├── test_user_schema.py
+│   │   │       ├── test_video_schema.py
+│   │   │       └── test_workout_history_schema.py
 │   │   ├── integration/
-│   │   │   ├── test_videos.py
-│   │   │   ├── test_today.py
-│   │   │   └── ...
-│   │   └── conftest.py
+│   │   │   ├── test_cascade.py            # カスケード削除のテスト
+│   │   │   ├── test_constraints.py        # DB 制約のテスト
+│   │   │   ├── test_triggers.py           # DB トリガーのテスト
+│   │   │   └── test_crud/                 # CRUD 操作のテスト
+│   │   │       ├── test_crud_recurrence.py
+│   │   │       ├── test_crud_tag.py
+│   │   │       ├── test_crud_todo_history.py
+│   │   │       ├── test_crud_user.py
+│   │   │       ├── test_crud_video.py
+│   │   │       ├── test_crud_video_tag.py
+│   │   │       └── test_crud_workout_history.py
+│   │   ├── test_imports.py                # モジュールインポートのテスト
+│   │   └── conftest.py                    # DBセッション・テスト用フィクスチャ
 │   └── pyproject.toml
-├── frontend/
+├── frontend/                              # ※未実装（設計のみ）
 │   ├── src/
-│   │   ├── app/                     ← Next.js App Router
-│   │   │   ├── page.tsx             ← / TODOリスト（Server Component）
+│   │   ├── app/                           # Next.js App Router
+│   │   │   ├── page.tsx                   # / TODOリスト（Server Component）
 │   │   │   ├── overdue/page.tsx
 │   │   │   ├── videos/
 │   │   │   │   ├── page.tsx
 │   │   │   │   ├── new/page.tsx
 │   │   │   │   └── [id]/page.tsx
 │   │   │   └── layout.tsx
-│   │   ├── components/              ← 再利用コンポーネント
-│   │   │   ├── TodoItem.tsx         ← 'use client'（操作あり）
-│   │   │   └── VideoForm.tsx        ← 'use client'（フォーム）
+│   │   ├── components/                    # 再利用コンポーネント
+│   │   │   ├── TodoItem.tsx               # 'use client'（操作あり）
+│   │   │   └── VideoForm.tsx              # 'use client'（フォーム）
 │   │   └── lib/
-│   │       └── api.ts               ← API クライアント（fetch wrapper）
+│   │       └── api.ts                     # API クライアント（fetch wrapper）
 │   ├── package.json
 │   └── tsconfig.json
+├── start_app.sh                           # 起動スクリプト（Docker Compose + マイグレーション）
 ├── docker-compose.yml
+├── CLAUDE.md
 ├── docs/
 └── README.md
 ```
@@ -125,6 +146,7 @@ models/ → PostgreSQL
 | `crud/` | DB CRUD 操作 | `models/`, `crud/schemas/` |
 | `core/date.py` | 論理的な今日の算出（横断的ユーティリティ） | どのレイヤーからも参照可 |
 | `models/` | テーブル定義 | PostgreSQL |
+| `main.py` | アプリケーションエントリポイント・`/health` エンドポイント | `api/` ルーター |
 
 ### スキーマの役割分担
 
@@ -211,53 +233,75 @@ settings = get_settings()
 
 ```
 tests/
-├── unit/
-│   ├── test_date.py          ← core/date.py（論理日付算出）
-│   └── test_recurrence.py    ← recurrence_service.py（次回予定日計算）
-├── integration/
-│   ├── test_videos.py        ← API + DB 結合テスト
-│   ├── test_today.py
-│   └── ...
-└── conftest.py               ← DBセッション・テスト用フィクスチャ
+├── unit/                          # DB不要のテスト
+│   ├── test_config.py             # 環境設定
+│   ├── test_models.py             # ORM モデル定義
+│   ├── test_types.py              # Enum 型
+│   ├── test_unique_constraints.py # ユニーク制約
+│   └── test_schemas/              # スキーマバリデーション
+│       ├── test_recurrence_schema.py
+│       ├── test_tag_schema.py
+│       ├── test_todo_history_schema.py
+│       ├── test_user_schema.py
+│       ├── test_video_schema.py
+│       └── test_workout_history_schema.py
+├── integration/                   # テスト用PostgreSQL必須
+│   ├── test_cascade.py            # カスケード削除
+│   ├── test_constraints.py        # DB 制約（UniqueConstraint, CheckConstraint）
+│   ├── test_triggers.py           # DB トリガー
+│   └── test_crud/                 # CRUD 操作
+│       ├── test_crud_recurrence.py
+│       ├── test_crud_tag.py
+│       ├── test_crud_todo_history.py
+│       ├── test_crud_user.py
+│       ├── test_crud_video.py
+│       ├── test_crud_video_tag.py
+│       └── test_crud_workout_history.py
+├── test_imports.py                # モジュールインポート
+└── conftest.py                    # DBセッション・テスト用フィクスチャ
 ```
 
 ### テスト方針
 
 | テスト種別 | 対象 | DB | 優先度 |
 |---|---|---|---|
-| Unit | `core/date.py`, `services/` のロジック | 不要（モック） | **高** |
-| Integration | `api/` エンドポイント全体 | テスト用PostgreSQL | 中 |
+| Unit | スキーマバリデーション、モデル定義、Enum 型、環境設定 | 不要 | **高** |
+| Integration | CRUD 操作、DB 制約、カスケード削除、トリガー | テスト用PostgreSQL | **高** |
 
 ### 重点テスト対象
 
-**`core/date.py`（論理日付）** — エッジケースが多いためUnit Testを重点的に書く
+**Unit Test（スキーマバリデーション）** — 全モデルの入力バリデーションを網羅
 
-- `day_change_time = 04:00` のとき、03:59 → 前日になること
-- `day_change_time = 04:00` のとき、04:00 → 当日になること
-- タイムゾーンが `Asia/Tokyo` / `UTC` で正しく動くこと
+- 各スキーマの必須フィールド・型チェック
+- Enum 型（RecurrenceType, DayOfWeek, TodoStatus）の値バリデーション
+- 環境設定（DevSettings / TestSettings）の切り替え
 
-**`recurrence_service.py`（次回予定日）** — recurrence_type 別に網羅テスト
+**Integration Test（CRUD・制約）** — DB 層の動作を実 DB で検証
 
-- `none`: next_scheduled_date が変化しないこと
-- `daily`: last_performed_date + 1日になること
-- `weekly`: 正しい曜日に飛ぶこと（週またぎも含む）
-- `interval`: last_performed_date + N日になること
+- 全テーブルの CRUD 操作（Create / Read / Update / Delete）
+- ユニーク制約（TodoHistory, WorkoutHistory, Tag, VideoTag 等）
+- チェック制約（VideoRecurrence の interval_days）
+- カスケード削除の連鎖動作
+- DB トリガーの動作
 
 ### テスト実行
 
 ```bash
-# 通常テスト（開発環境）
-uv run pytest ./tests/
+# テスト用DBを使ったテスト（backend ディレクトリで実行）
+cd backend && ENV=test uv run pytest ./tests/
 
-# テスト用DBを使ったテスト
-ENV=test uv run pytest ./tests/
+# Unit テストのみ
+cd backend && ENV=test uv run pytest ./tests/unit/
+
+# Integration テストのみ
+cd backend && ENV=test uv run pytest ./tests/integration/
 ```
 
 ---
 
 ## 5. ローカル開発環境
 
-Docker Compose で PostgreSQL を起動する。バックエンドとフロントエンドはローカルで直接起動する。
+Docker Compose で PostgreSQL とバックエンドを起動する。`start_app.sh` で一括起動が可能。
 
 ```yaml
 # docker-compose.yml
@@ -272,18 +316,35 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d youtube_todo"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ENV: development
+      DATABASE_URL: postgresql://user:password@db:5432/youtube_todo
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
 ```
 
 ```bash
-# DB 起動
-docker compose up
+# 一括起動（推奨）— DB + バックエンド起動 → テスト用DB作成 → マイグレーション実行
+./start_app.sh
 
-# バックエンド起動（ポート 8000）
-uv run uvicorn app.main:app --reload
+# 停止
+docker compose down
 
-# フロントエンド起動（ポート 3000）
-npm run dev
+# 停止 + データ削除
+docker compose down -v
 ```

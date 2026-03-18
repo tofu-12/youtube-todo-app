@@ -5,8 +5,7 @@ import importlib
 import pytest
 
 
-# -- Module import tests (parameterized) ------------------------------------
-
+# Module import tests (parameterized)
 MODULE_PATHS = [
     # Core
     "app.core.types",
@@ -58,8 +57,7 @@ def test_import_module(module_path: str) -> None:
     assert module is not None
 
 
-# -- Attribute existence tests ----------------------------------------------
-
+# Attribute existence tests
 ATTRIBUTE_CASES = [
     ("app.core.types", ["RecurrenceType", "DayOfWeek", "TodoStatus"]),
     ("app.core.database", ["Base", "engine", "SessionLocal"]),

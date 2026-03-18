@@ -25,6 +25,16 @@ dist/
 build/
 *.egg-info/
 
+# Node.js
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# TypeScript
+next-env.d.ts
+
 # 環境変数
 .env
 .env.*

@@ -5,9 +5,9 @@ cd "$(dirname "$0")"
 
 cleanup() {
     echo ""
-    echo "==> Stopping all services..."
+    echo "Stopping all services..."
     docker compose down
-    echo "==> All services stopped."
+    echo "All services stopped."
 }
 
 trap cleanup EXIT INT TERM

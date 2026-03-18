@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import Enum, ForeignKey, Integer
+from sqlalchemy import CheckConstraint, Enum, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -14,6 +14,13 @@ class VideoRecurrence(TimestampMixin, Base):
     """Recurrence rule for a video (1:1 with Video)."""
 
     __tablename__ = "video_recurrences"
+    __table_args__ = (
+        CheckConstraint(
+            "(recurrence_type != 'interval') OR "
+            "(interval_days IS NOT NULL AND interval_days >= 1)",
+            name="ck_interval_days_required",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True, default=uuid.uuid4

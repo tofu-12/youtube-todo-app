@@ -152,9 +152,9 @@ YouTube の筋トレ動画を活用したトレーニング管理を効率化す
 | フィールド | 型 | Nullable | 説明 |
 |---|---|---|---|
 | id | UUID | NO | 主キー |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
 | name | string | NO | 動画名（ユーザーが任意に命名） |
 | url | string | NO | YouTube URL |
-| tags | string[] | NO | タグ一覧（最大 10 件、空配列可） |
 | comment | string | YES | メモ（任意） |
 | last_performed_date | date | YES | 最終実施日（論理日付、NULL = 未実施） |
 | next_scheduled_date | date | YES | 次回予定日（論理日付、VideoRecurrence から自動計算） |
@@ -168,7 +168,8 @@ Video と 1:1。繰り返し設定を Video テーブルから分離して管理
 | フィールド | 型 | Nullable | 説明 |
 |---|---|---|---|
 | id | UUID | NO | 主キー |
-| video_id | UUID | NO | FK（Video, UNIQUE） |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
+| video_id | UUID | NO | FK（Video, CASCADE DELETE, UNIQUE） |
 | recurrence_type | enum | NO | `none` / `daily` / `weekly` / `interval` |
 | interval_days | int | YES | interval 時の日数（他は NULL） |
 | created_at | datetime | NO | 登録日時（UTC） |
@@ -181,29 +182,76 @@ VideoRecurrence と 1:多。`recurrence_type = weekly` の場合のみ使用。
 | フィールド | 型 | Nullable | 説明 |
 |---|---|---|---|
 | id | UUID | NO | 主キー |
-| video_recurrence_id | UUID | NO | FK（VideoRecurrence） |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
+| video_recurrence_id | UUID | NO | FK（VideoRecurrence, CASCADE DELETE） |
 | day_of_week | enum | NO | `MON` / `TUE` / `WED` / `THU` / `FRI` / `SAT` / `SUN` |
 | created_at | datetime | NO | 登録日時（UTC） |
 | updated_at | datetime | NO | 更新日時（UTC） |
+
+### Tag（タグ）
+
+タグを独立テーブルで管理する。Video とは VideoTag（中間テーブル）を介した多対多リレーション。
+
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
+| name | string(50) | NO | タグ名 |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+> ユニーク制約: `(user_id, name)` — 同一ユーザー内でタグ名は一意
+
+### VideoTag（動画タグ中間テーブル）
+
+Video と Tag の多対多リレーションを管理する中間テーブル。
+
+| フィールド | 型 | Nullable | 説明 |
+|---|---|---|---|
+| id | UUID | NO | 主キー |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
+| video_id | UUID | NO | FK（Video, CASCADE DELETE） |
+| tag_id | UUID | NO | FK（Tag, CASCADE DELETE） |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+> ユニーク制約: `(video_id, tag_id)` — 同一動画に同じタグの重複登録を防止
 
 ### TodoHistory（TODO履歴）
 
 | フィールド | 型 | Nullable | 説明 |
 |---|---|---|---|
 | id | UUID | NO | 主キー |
-| video_id | UUID | NO | 対象動画 |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
+| video_id | UUID | NO | FK（Video, CASCADE DELETE） |
 | scheduled_date | date | NO | TODO として表示された日付（論理日付） |
 | status | enum | NO | `completed` / `skipped` |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
 
 ### WorkoutHistory（ワークアウト履歴）
 
 | フィールド | 型 | Nullable | 説明 |
 |---|---|---|---|
 | id | UUID | NO | 主キー |
-| video_id | UUID | NO | 対象動画 |
+| user_id | UUID | NO | FK（User, CASCADE DELETE） |
+| video_id | UUID | NO | FK（Video, CASCADE DELETE） |
 | performed_date | date | NO | 実施日（論理日付） |
 | performed_at | datetime | NO | 実施日時（UTC） |
 | expires_date | date | NO | 有効期限日（論理日付、この日まで有効） |
+| created_at | datetime | NO | 登録日時（UTC） |
+| updated_at | datetime | NO | 更新日時（UTC） |
+
+### カスケード削除ルール
+
+すべてのテーブルは `user_id` を外部キーとして持ち、ユーザーごとにデータを分離する。外部キーにはカスケード削除を設定し、親レコード削除時に関連データを自動削除する。
+
+| 親テーブル | 子テーブル | 削除時の動作 |
+|---|---|---|
+| User | Video, VideoRecurrence, VideoWeekday, Tag, VideoTag, TodoHistory, WorkoutHistory | CASCADE DELETE |
+| Video | VideoRecurrence, VideoTag, TodoHistory, WorkoutHistory | CASCADE DELETE |
+| VideoRecurrence | VideoWeekday | CASCADE DELETE |
+| Tag | VideoTag | CASCADE DELETE |
 
 ---
 
@@ -274,7 +322,6 @@ VideoRecurrence と 1:多。`recurrence_type = weekly` の場合のみ使用。
 ## 9. 制約・前提条件
 
 - YouTube URL は `youtube.com/watch?v=xxx` および `youtu.be/xxx` 形式を受け付ける
-- タグは 1 動画につき最大 10 個
 - `recurrence_type = daily` の場合、毎日 TODO に表示される
 - `recurrence_type = weekly` の場合、VideoWeekday に 1 件以上登録が必要
 - `recurrence_type = interval` の場合、`interval_days` は 1 以上の整数

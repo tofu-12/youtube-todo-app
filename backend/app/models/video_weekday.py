@@ -6,7 +6,8 @@ from sqlalchemy import Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
-from app.models.base import DayOfWeek, TimestampMixin
+from app.constants.enums import DayOfWeek
+from app.models.base import TimestampMixin
 
 
 class VideoWeekday(TimestampMixin, Base):

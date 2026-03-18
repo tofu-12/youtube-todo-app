@@ -1,13 +1,14 @@
-"""Shared model mixins and enum definitions."""
-
-import enum
+"""Shared model mixins."""
 
 from sqlalchemy import DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TimestampMixin:
-    """Mixin that adds created_at and updated_at columns (UTC)."""
+    """Mixin that adds created_at and updated_at columns.
+
+    Stored as TIMESTAMPTZ (UTC) in PostgreSQL.
+    """
 
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
@@ -20,31 +21,3 @@ class TimestampMixin:
         onupdate=func.now(),
         nullable=False,
     )
-
-
-class RecurrenceType(str, enum.Enum):
-    """Recurrence rule types for video scheduling."""
-
-    NONE = "none"
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    INTERVAL = "interval"
-
-
-class DayOfWeek(str, enum.Enum):
-    """Days of the week."""
-
-    MON = "MON"
-    TUE = "TUE"
-    WED = "WED"
-    THU = "THU"
-    FRI = "FRI"
-    SAT = "SAT"
-    SUN = "SUN"
-
-
-class TodoStatus(str, enum.Enum):
-    """Status of a todo history entry."""
-
-    COMPLETED = "completed"
-    SKIPPED = "skipped"

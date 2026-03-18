@@ -1,6 +1,7 @@
 """FastAPI application entry point."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.recurrences import router as recurrences_router
 from app.api.settings import router as settings_router
@@ -10,6 +11,14 @@ from app.api.videos import router as videos_router
 from app.api.workout_histories import router as workout_histories_router
 
 app = FastAPI(title="YouTube Todo App")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(videos_router)
 app.include_router(recurrences_router)

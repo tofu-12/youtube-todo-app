@@ -119,11 +119,7 @@ def update_video(
     Returns:
         The updated video with tags, or None if not found.
     """
-    update_data = VideoUpdate(
-        name=data.name,
-        url=data.url,
-        comment=data.comment,
-    )
+    update_data = VideoUpdate(**data.model_dump(exclude_unset=True, exclude={"tag_names"}))
     video = crud_video.update_video(db, video_id, update_data, user_id)
     if video is None:
         return None

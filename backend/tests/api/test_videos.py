@@ -70,7 +70,7 @@ class TestUpdateVideo:
         """PUT /api/videos/{video_id} updates and returns 200."""
         response = client.put(
             f"/api/videos/{sample_video.id}",
-            json={"name": "Updated Name", "url": sample_video.url},
+            json={"name": "Updated Name"},
         )
 
         assert response.status_code == 200

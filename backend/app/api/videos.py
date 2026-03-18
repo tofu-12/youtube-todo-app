@@ -39,7 +39,7 @@ def get_video(
     user: UserResponse = Depends(get_current_user),
 ) -> VideoOut:
     """Get a video by ID."""
-    result = video_service.get_video_detail(db, video_id)
+    result = video_service.get_video_detail(db, user.id, video_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Video not found")
     return result
@@ -66,5 +66,5 @@ def delete_video(
     user: UserResponse = Depends(get_current_user),
 ) -> None:
     """Delete a video."""
-    if not video_service.delete_video(db, video_id):
+    if not video_service.delete_video(db, user.id, video_id):
         raise HTTPException(status_code=404, detail="Video not found")

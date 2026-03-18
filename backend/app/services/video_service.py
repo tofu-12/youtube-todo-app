@@ -68,18 +68,19 @@ def create_video(
 
 
 def get_video_detail(
-    db: Session, video_id: uuid.UUID
+    db: Session, user_id: uuid.UUID, video_id: uuid.UUID
 ) -> VideoOut | None:
-    """Get a video with its tags.
+    """Get a video with its tags, scoped to the given user.
 
     Args:
         db: Database session.
+        user_id: The user ID.
         video_id: The video ID.
 
     Returns:
         The video with tags, or None if not found.
     """
-    video = crud_video.get_video(db, video_id)
+    video = crud_video.get_video(db, video_id, user_id)
     if video is None:
         return None
     return _build_video_out(db, video)
@@ -123,7 +124,7 @@ def update_video(
         url=data.url,
         comment=data.comment,
     )
-    video = crud_video.update_video(db, video_id, update_data)
+    video = crud_video.update_video(db, video_id, update_data, user_id)
     if video is None:
         return None
     if data.tag_names is not None:
@@ -132,17 +133,20 @@ def update_video(
     return _build_video_out(db, video)
 
 
-def delete_video(db: Session, video_id: uuid.UUID) -> bool:
-    """Delete a video.
+def delete_video(
+    db: Session, user_id: uuid.UUID, video_id: uuid.UUID
+) -> bool:
+    """Delete a video, scoped to the given user.
 
     Args:
         db: Database session.
+        user_id: The user ID.
         video_id: The video ID.
 
     Returns:
         True if deleted, False if not found.
     """
-    return crud_video.delete_video(db, video_id)
+    return crud_video.delete_video(db, video_id, user_id)
 
 
 def get_today_videos(

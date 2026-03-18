@@ -39,9 +39,14 @@ def get_workout_histories(
     return [WorkoutHistoryResponse.model_validate(e) for e in entries]
 
 
-def delete_workout_history(db: Session, entry_id: uuid.UUID) -> bool:
-    """Delete a workout history entry. Returns True if deleted."""
-    entry = db.get(WorkoutHistory, entry_id)
+def delete_workout_history(
+    db: Session, entry_id: uuid.UUID, user_id: uuid.UUID
+) -> bool:
+    """Delete a workout history entry, scoped to the given user."""
+    stmt = select(WorkoutHistory).where(
+        WorkoutHistory.id == entry_id, WorkoutHistory.user_id == user_id
+    )
+    entry = db.scalars(stmt).first()
     if entry is None:
         return False
     db.delete(entry)

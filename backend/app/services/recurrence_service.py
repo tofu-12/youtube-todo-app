@@ -69,7 +69,7 @@ def upsert_video_recurrence(
     user_id: uuid.UUID,
     video_id: uuid.UUID,
     data: RecurrenceRequest,
-) -> RecurrenceResponse:
+) -> Optional[RecurrenceResponse]:
     """Create or update a video recurrence and recalculate schedule.
 
     Args:
@@ -79,8 +79,13 @@ def upsert_video_recurrence(
         data: Recurrence request data.
 
     Returns:
-        The upserted recurrence response.
+        The upserted recurrence response, or None if the video is not
+        owned by the user.
     """
+    video = crud_video.get_video(db, video_id, user_id)
+    if video is None:
+        return None
+
     upsert_data = RecurrenceUpsert(
         user_id=user_id,
         video_id=video_id,
@@ -90,7 +95,7 @@ def upsert_video_recurrence(
     )
     result = crud_recurrence.upsert_recurrence(db, upsert_data)
 
-    video = crud_video.get_video(db, video_id)
+    video = crud_video.get_video(db, video_id, user_id)
     if video and video.last_performed_date is not None:
         next_date = calculate_next_scheduled_date(
             data.recurrence_type,
@@ -99,7 +104,7 @@ def upsert_video_recurrence(
             data.weekdays,
         )
         crud_video.update_video(
-            db, video_id, VideoUpdate(next_scheduled_date=next_date)
+            db, video_id, VideoUpdate(next_scheduled_date=next_date), user_id
         )
 
     return result

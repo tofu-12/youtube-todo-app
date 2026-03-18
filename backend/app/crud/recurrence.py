@@ -53,11 +53,12 @@ def upsert_recurrence(
 
 
 def get_recurrence_by_video(
-    db: Session, video_id: uuid.UUID
+    db: Session, video_id: uuid.UUID, user_id: uuid.UUID
 ) -> Optional[RecurrenceResponse]:
-    """Get recurrence rule for a video."""
+    """Get recurrence rule for a video, scoped to the given user."""
     stmt = select(VideoRecurrence).where(
-        VideoRecurrence.video_id == video_id
+        VideoRecurrence.video_id == video_id,
+        VideoRecurrence.user_id == user_id,
     )
     recurrence = db.scalars(stmt).first()
     if recurrence is None:
@@ -65,10 +66,13 @@ def get_recurrence_by_video(
     return RecurrenceResponse.model_validate(recurrence)
 
 
-def delete_recurrence(db: Session, video_id: uuid.UUID) -> bool:
-    """Delete recurrence rule for a video. Returns True if deleted."""
+def delete_recurrence(
+    db: Session, video_id: uuid.UUID, user_id: uuid.UUID
+) -> bool:
+    """Delete recurrence rule for a video, scoped to the given user."""
     stmt = select(VideoRecurrence).where(
-        VideoRecurrence.video_id == video_id
+        VideoRecurrence.video_id == video_id,
+        VideoRecurrence.user_id == user_id,
     )
     recurrence = db.scalars(stmt).first()
     if recurrence is None:

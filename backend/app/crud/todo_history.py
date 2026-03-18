@@ -39,9 +39,14 @@ def get_todo_histories(
     return [TodoHistoryResponse.model_validate(e) for e in entries]
 
 
-def delete_todo_history(db: Session, entry_id: uuid.UUID) -> bool:
-    """Delete a todo history entry. Returns True if deleted."""
-    entry = db.get(TodoHistory, entry_id)
+def delete_todo_history(
+    db: Session, entry_id: uuid.UUID, user_id: uuid.UUID
+) -> bool:
+    """Delete a todo history entry, scoped to the given user."""
+    stmt = select(TodoHistory).where(
+        TodoHistory.id == entry_id, TodoHistory.user_id == user_id
+    )
+    entry = db.scalars(stmt).first()
     if entry is None:
         return False
     db.delete(entry)

@@ -60,8 +60,11 @@ def create_todo_history(
             db,
             data.video_id,
             VideoUpdate(last_performed_date=data.scheduled_date),
+            user.id,
         )
-        recurrence = crud_recurrence.get_recurrence_by_video(db, data.video_id)
+        recurrence = crud_recurrence.get_recurrence_by_video(
+            db, data.video_id, user.id
+        )
         if recurrence is not None:
             next_date = calculate_next_scheduled_date(
                 recurrence.recurrence_type,
@@ -70,7 +73,10 @@ def create_todo_history(
                 [w.day_of_week for w in recurrence.weekdays],
             )
             crud_video.update_video(
-                db, data.video_id, VideoUpdate(next_scheduled_date=next_date)
+                db,
+                data.video_id,
+                VideoUpdate(next_scheduled_date=next_date),
+                user.id,
             )
 
     return entry
@@ -83,7 +89,7 @@ def delete_todo_history(
     user: UserResponse = Depends(get_current_user),
 ) -> None:
     """Delete a todo history entry."""
-    if not crud_todo_history.delete_todo_history(db, entry_id):
+    if not crud_todo_history.delete_todo_history(db, entry_id, user.id):
         raise HTTPException(
             status_code=404, detail="Todo history entry not found"
         )

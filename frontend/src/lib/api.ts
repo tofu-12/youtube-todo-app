@@ -42,6 +42,12 @@ async function fetchApi<T>(
   });
 
   if (!res.ok) {
+    if (res.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("user_email");
+      window.location.replace("/auth");
+      return new Promise<T>(() => {});
+    }
     const body = await res.text();
     throw new Error(`API error ${res.status}: ${body}`);
   }

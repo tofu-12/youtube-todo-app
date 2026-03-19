@@ -36,6 +36,28 @@ def get_or_create_tag(db: Session, data: TagInsert) -> TagResponse:
     return create_tag(db, data)
 
 
+def get_or_create_tags_bulk(
+    db: Session, user_id: uuid.UUID, names: list[str]
+) -> list[TagResponse]:
+    """Get or create multiple tags by name in bulk."""
+    if not names:
+        return []
+    unique_names = list(dict.fromkeys(names))
+    stmt = select(Tag).where(Tag.user_id == user_id, Tag.name.in_(unique_names))
+    existing = {t.name: t for t in db.scalars(stmt).all()}
+    result = []
+    for name in unique_names:
+        if name in existing:
+            result.append(TagResponse.model_validate(existing[name]))
+        else:
+            tag = Tag(user_id=user_id, name=name)
+            db.add(tag)
+            db.flush()
+            existing[name] = tag
+            result.append(TagResponse.model_validate(tag))
+    return result
+
+
 def delete_tag(db: Session, tag_id: uuid.UUID) -> bool:
     """Delete a tag. Returns True if deleted, False if not found."""
     tag = db.get(Tag, tag_id)

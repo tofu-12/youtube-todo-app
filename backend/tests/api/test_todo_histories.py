@@ -57,6 +57,19 @@ class TestCreateTodoHistory:
         assert data["status"] == "completed"
         assert data["video_id"] == str(sample_video.id)
 
+    def test_create_with_nonexistent_video(self, client):
+        """POST /api/todo-histories with nonexistent video_id returns 404."""
+        payload = {
+            "video_id": str(uuid.uuid4()),
+            "scheduled_date": "2026-03-19",
+            "status": "completed",
+        }
+
+        response = client.post("/api/todo-histories", json=payload)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Video not found"
+
     def test_create_skipped(self, client, sample_video):
         """POST /api/todo-histories with status skipped returns 201."""
         payload = {

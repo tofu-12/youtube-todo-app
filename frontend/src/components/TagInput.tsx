@@ -100,7 +100,7 @@ export default function TagInput({ selectedTags, onChange }: TagInputProps) {
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex flex-wrap items-center gap-1 rounded-md border border-gray-300 px-2 py-1 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+      <div className="flex flex-wrap items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-1 shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
         {selectedTags.map((tag, i) => (
           <span
             key={tag.id || tag.name}

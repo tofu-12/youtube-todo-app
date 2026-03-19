@@ -166,25 +166,22 @@ export default function VideoForm({
         />
       </div>
 
-      <fieldset className="rounded-md border p-4">
-        <legend className="text-sm font-medium text-gray-700">
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
           繰り返し設定
-        </legend>
-
-        <div className="mt-2">
-          <select
-            value={recurrenceType}
-            onChange={(e) =>
-              setRecurrenceType(e.target.value as RecurrenceType)
-            }
-            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value={RecurrenceType.NONE}>なし</option>
-            <option value={RecurrenceType.DAILY}>毎日</option>
-            <option value={RecurrenceType.WEEKLY}>毎週</option>
-            <option value={RecurrenceType.INTERVAL}>間隔指定</option>
-          </select>
-        </div>
+        </label>
+        <select
+          value={recurrenceType}
+          onChange={(e) =>
+            setRecurrenceType(e.target.value as RecurrenceType)
+          }
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        >
+          <option value={RecurrenceType.NONE}>なし</option>
+          <option value={RecurrenceType.DAILY}>毎日</option>
+          <option value={RecurrenceType.WEEKLY}>毎週</option>
+          <option value={RecurrenceType.INTERVAL}>間隔指定</option>
+        </select>
 
         {recurrenceType === RecurrenceType.INTERVAL && (
           <div className="mt-3">
@@ -217,7 +214,7 @@ export default function VideoForm({
             ))}
           </div>
         )}
-      </fieldset>
+      </div>
 
       <button
         type="submit"

@@ -4,7 +4,9 @@ import datetime
 import uuid
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
+
+from app.core.validators import validate_youtube_url
 
 
 class VideoInsert(BaseModel):
@@ -15,6 +17,12 @@ class VideoInsert(BaseModel):
     url: str
     comment: Optional[str] = None
 
+    @field_validator("url")
+    @classmethod
+    def check_youtube_url(cls, v: str) -> str:
+        """Validate that url is a YouTube URL."""
+        return validate_youtube_url(v)
+
 
 class VideoUpdate(BaseModel):
     """Schema for updating a video."""
@@ -24,6 +32,14 @@ class VideoUpdate(BaseModel):
     comment: Optional[str] = None
     last_performed_date: Optional[datetime.date] = None
     next_scheduled_date: Optional[datetime.date] = None
+
+    @field_validator("url")
+    @classmethod
+    def check_youtube_url(cls, v: Optional[str]) -> Optional[str]:
+        """Validate that url is a YouTube URL when provided."""
+        if v is not None:
+            return validate_youtube_url(v)
+        return v
 
 
 class VideoFilter(BaseModel):

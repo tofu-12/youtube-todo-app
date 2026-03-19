@@ -19,6 +19,15 @@ def create_user(db: Session, data: UserInsert) -> UserResponse:
     return UserResponse.model_validate(user)
 
 
+def get_user_by_email(db: Session, email: str) -> Optional[UserResponse]:
+    """Get a user by email address."""
+    stmt = select(User).where(User.email == email)
+    user = db.scalars(stmt).first()
+    if user is None:
+        return None
+    return UserResponse.model_validate(user)
+
+
 def get_user(db: Session, user_id: uuid.UUID) -> Optional[UserResponse]:
     """Get a user by ID."""
     user = db.get(User, user_id)

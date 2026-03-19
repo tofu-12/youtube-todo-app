@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict
 class UserInsert(BaseModel):
     """Schema for creating a new user."""
 
+    email: str
     day_change_time: datetime.time = datetime.time(0, 0)
     timezone: str = "Asia/Tokyo"
 
@@ -27,6 +28,7 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    email: str
     day_change_time: datetime.time
     timezone: str
     created_at: datetime.datetime

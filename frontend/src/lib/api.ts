@@ -1,4 +1,5 @@
 import type {
+  AuthResponse,
   RecurrenceOut,
   RecurrenceRequest,
   SettingsOut,
@@ -19,12 +20,23 @@ async function fetchApi<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
+  const userId =
+    typeof window !== "undefined"
+      ? localStorage.getItem("user_id")
+      : null;
+
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+
+  if (userId) {
+    headers["X-User-Id"] = userId;
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    headers,
   });
 
   if (!res.ok) {
@@ -180,5 +192,21 @@ export async function updateSettings(
   return fetchApi<SettingsOut>("/api/settings", {
     method: "PUT",
     body: JSON.stringify(data),
+  });
+}
+
+// Auth
+
+export async function loginUser(email: string): Promise<AuthResponse> {
+  return fetchApi<AuthResponse>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function registerUser(email: string): Promise<AuthResponse> {
+  return fetchApi<AuthResponse>("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email }),
   });
 }

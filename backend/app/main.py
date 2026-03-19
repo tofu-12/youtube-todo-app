@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.auth import router as auth_router
 from app.api.recurrences import router as recurrences_router
 from app.api.settings import router as settings_router
 from app.api.today import router as today_router
@@ -20,6 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(videos_router)
 app.include_router(recurrences_router)
 app.include_router(today_router)

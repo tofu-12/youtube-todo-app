@@ -10,18 +10,29 @@ class TestUserInsert:
     """Tests for UserInsert schema."""
 
     def test_user_insert_defaults(self):
-        """UserInsert provides sensible defaults."""
-        data = UserInsert()
+        """UserInsert provides sensible defaults for optional fields."""
+        data = UserInsert(email="test@example.com")
+        assert data.email == "test@example.com"
         assert data.day_change_time == datetime.time(0, 0)
         assert data.timezone == "Asia/Tokyo"
 
     def test_user_insert_custom(self):
         """UserInsert accepts custom values."""
         data = UserInsert(
-            day_change_time=datetime.time(5, 0), timezone="UTC"
+            email="custom@example.com",
+            day_change_time=datetime.time(5, 0),
+            timezone="UTC",
         )
+        assert data.email == "custom@example.com"
         assert data.day_change_time == datetime.time(5, 0)
         assert data.timezone == "UTC"
+
+    def test_user_insert_requires_email(self):
+        """UserInsert requires an email field."""
+        import pytest
+
+        with pytest.raises(Exception):
+            UserInsert()
 
 
 class TestUserUpdate:
@@ -49,6 +60,7 @@ class TestUserResponse:
         now = datetime.datetime.now(tz=datetime.timezone.utc)
         obj = {
             "id": uuid.uuid4(),
+            "email": "resp@example.com",
             "day_change_time": datetime.time(0, 0),
             "timezone": "Asia/Tokyo",
             "created_at": now,

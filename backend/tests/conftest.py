@@ -147,9 +147,15 @@ def db(connection):
 @pytest.fixture()
 def user_factory(db):
     """Factory callable that creates User records via CRUD."""
+    counter = itertools.count(1)
+
     def _create(**overrides):
+        n = next(counter)
+        if "email" not in overrides:
+            overrides["email"] = f"testuser{n}@example.com"
         data = UserInsert(**overrides)
         return create_user(db, data)
+
     return _create
 
 

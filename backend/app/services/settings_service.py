@@ -55,10 +55,7 @@ def update_settings(
                 detail=f"Invalid timezone: {data.timezone}",
             )
 
-    update_data = UserUpdate(
-        day_change_time=data.day_change_time,
-        timezone=data.timezone,
-    )
+    update_data = UserUpdate(**data.model_dump(exclude_unset=True))
     user = crud_user.update_user(db, user_id, update_data)
     if user is None:
         return None

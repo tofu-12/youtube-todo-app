@@ -14,7 +14,7 @@ class TestUpdateSettings:
         """PUT /api/settings updates timezone."""
         response = client.put(
             "/api/settings",
-            json={"timezone": "America/New_York", "day_change_time": "00:00:00"},
+            json={"timezone": "America/New_York"},
         )
 
         assert response.status_code == 200

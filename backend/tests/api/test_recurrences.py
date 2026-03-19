@@ -44,14 +44,14 @@ class TestUpsertRecurrence:
             f"/api/videos/{sample_video.id}/recurrence",
             json={
                 "recurrence_type": "weekly",
-                "weekdays": ["MON", "WED", "FRI"],
+                "weekdays": ["mon", "wed", "fri"],
             },
         )
 
         assert response.status_code == 200
         data = response.json()
         assert data["recurrence_type"] == "weekly"
-        assert set(data["weekdays"]) == {"MON", "WED", "FRI"}
+        assert set(data["weekdays"]) == {"mon", "wed", "fri"}
 
 
 class TestDeleteRecurrence:

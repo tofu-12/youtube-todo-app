@@ -12,6 +12,12 @@ from app.services import settings_service
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
 
+@router.get("/timezones", response_model=list[api_settings_schema.TimezoneOption])
+def get_timezones() -> list[api_settings_schema.TimezoneOption]:
+    """Get available timezone options."""
+    return settings_service.get_available_timezones()
+
+
 @router.get("", response_model=api_settings_schema.SettingsResponse)
 def get_settings(
     db: Session = Depends(get_db),

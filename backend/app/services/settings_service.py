@@ -8,9 +8,22 @@ from sqlalchemy.orm import Session
 
 import app.api.schemas.settings as api_settings_schema
 from app.api.schemas.settings import SettingsUpdateRequest
+from app.core.types import Timezone
 from app.crud import user as crud_user
 import app.crud.schemas.user as crud_user_schema
 from app.crud.schemas.user import UserUpdate
+
+
+def get_available_timezones() -> list[api_settings_schema.TimezoneOption]:
+    """Return a list of available timezone options.
+
+    Returns:
+        A list of TimezoneOption with value and label for each supported timezone.
+    """
+    return [
+        api_settings_schema.TimezoneOption(value=tz.value, label=tz.value)
+        for tz in Timezone
+    ]
 
 
 def get_settings(db: Session, user_id: uuid.UUID) -> api_settings_schema.SettingsResponse | None:

@@ -16,6 +16,7 @@ vi.mock("@/lib/api", () => ({
   createVideo: vi.fn(),
   updateVideo: vi.fn(),
   upsertRecurrence: vi.fn(),
+  getTags: vi.fn().mockResolvedValue([]),
 }));
 
 const baseVideo: VideoOut = {

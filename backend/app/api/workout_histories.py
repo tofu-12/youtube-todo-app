@@ -13,6 +13,7 @@ from app.api.schemas.workout_history import (
 )
 from app.core.date import get_logical_today
 from app.core.dependencies import get_current_user, get_db
+from app.crud import video as crud_video
 from app.crud import workout_history as crud_workout_history
 from app.crud.schemas.user import UserResponse
 from app.crud.schemas.workout_history import (
@@ -60,6 +61,10 @@ def create_workout_history(
     Server calculates performed_date (logical today), performed_at (UTC now),
     and expires_date (performed_date + expires_days).
     """
+    video = crud_video.get_video(db, data.video_id, user.id)
+    if video is None:
+        raise HTTPException(status_code=404, detail="Video not found")
+
     performed_date = get_logical_today(
         user.day_change_time, user.timezone
     )

@@ -27,6 +27,18 @@ class TestCreateWorkoutHistory:
         assert "expires_date" in data
 
 
+    def test_create_with_nonexistent_video(self, client):
+        """POST /api/workout-histories with nonexistent video_id returns 404."""
+        payload = {
+            "video_id": str(uuid.uuid4()),
+            "expires_days": 3,
+        }
+
+        response = client.post("/api/workout-histories", json=payload)
+
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Video not found"
+
     def test_create_with_zero_expires_days(self, client, sample_video):
         """POST /api/workout-histories with expires_days=0 returns 422."""
         payload = {

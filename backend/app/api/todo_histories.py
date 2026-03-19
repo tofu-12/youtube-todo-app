@@ -47,6 +47,10 @@ def create_todo_history(
     When status is COMPLETED, updates last_performed_date and
     recalculates next_scheduled_date.
     """
+    video = crud_video.get_video(db, data.video_id, user.id)
+    if video is None:
+        raise HTTPException(status_code=404, detail="Video not found")
+
     insert_data = TodoHistoryInsert(
         user_id=user.id,
         video_id=data.video_id,

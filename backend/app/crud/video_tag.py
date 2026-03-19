@@ -14,14 +14,21 @@ def set_video_tags(
     db: Session, user_id: uuid.UUID, video_id: uuid.UUID,
     tag_ids: list[uuid.UUID],
 ) -> list[TagResponse]:
-    """Replace all tags for a video with the given tag IDs."""
-    db.query(VideoTag).filter(VideoTag.video_id == video_id).delete()
+    """Replace all tags for a video with the given tag IDs.
 
-    for tag_id in tag_ids:
-        video_tag = VideoTag(
-            user_id=user_id, video_id=video_id, tag_id=tag_id
-        )
-        db.add(video_tag)
+    Uses a SAVEPOINT and row-level locking to prevent race conditions
+    between the DELETE and INSERT operations.
+    """
+    with db.begin_nested():
+        db.query(VideoTag).filter(
+            VideoTag.video_id == video_id
+        ).with_for_update().all()
+        db.query(VideoTag).filter(VideoTag.video_id == video_id).delete()
+        for tag_id in tag_ids:
+            video_tag = VideoTag(
+                user_id=user_id, video_id=video_id, tag_id=tag_id
+            )
+            db.add(video_tag)
 
     db.commit()
     return get_video_tags(db, video_id)

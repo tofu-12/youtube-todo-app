@@ -34,7 +34,7 @@ def _build_tag_outs(db: Session, video_id: uuid.UUID) -> list[TagOut]:
 
 
 def _build_video_out(
-    db: Session, video_resp: "VideoResponse"
+    db: Session, video_resp: VideoResponse
 ) -> VideoOut:
     """Build a VideoOut from a VideoResponse by attaching tags."""
     return VideoOut(

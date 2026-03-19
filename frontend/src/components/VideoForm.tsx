@@ -36,6 +36,9 @@ export default function VideoForm({
   const [tagInput, setTagInput] = useState(
     initialData?.tags.map((t) => t.name).join(", ") ?? ""
   );
+  const [nextScheduledDate, setNextScheduledDate] = useState(
+    initialData?.next_scheduled_date ?? ""
+  );
 
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>(
     initialRecurrence?.recurrence_type ?? RecurrenceType.NONE
@@ -70,6 +73,7 @@ export default function VideoForm({
           name,
           url,
           comment: comment || null,
+          next_scheduled_date: nextScheduledDate || null,
           tag_names: tagNames,
         });
         videoId = video.id;
@@ -78,6 +82,7 @@ export default function VideoForm({
           name,
           url,
           comment: comment || null,
+          next_scheduled_date: nextScheduledDate || null,
           tag_names: tagNames,
         });
         videoId = video.id;
@@ -153,6 +158,18 @@ export default function VideoForm({
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           placeholder="例: 胸, 腕, 背中"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          次回予定日
+        </label>
+        <input
+          type="date"
+          value={nextScheduledDate}
+          onChange={(e) => setNextScheduledDate(e.target.value)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
         />
       </div>

@@ -16,6 +16,7 @@ class VideoInsert(BaseModel):
     name: str
     url: str
     comment: Optional[str] = None
+    next_scheduled_date: Optional[datetime.date] = None
 
     @field_validator("url")
     @classmethod

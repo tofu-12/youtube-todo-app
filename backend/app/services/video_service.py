@@ -65,7 +65,13 @@ def create_video(
     """
     video = crud_video.create_video(
         db,
-        VideoInsert(user_id=user_id, name=data.name, url=data.url, comment=data.comment),
+        VideoInsert(
+            user_id=user_id,
+            name=data.name,
+            url=data.url,
+            comment=data.comment,
+            next_scheduled_date=data.next_scheduled_date,
+        ),
     )
     tag_ids = _resolve_tags(db, user_id, data.tag_names)
     if tag_ids:

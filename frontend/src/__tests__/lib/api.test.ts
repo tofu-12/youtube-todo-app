@@ -12,6 +12,7 @@ import {
   createTodoHistory,
   getWorkoutHistories,
   createWorkoutHistory,
+  getTimezones,
   getSettings,
   updateSettings,
 } from "@/lib/api";
@@ -283,6 +284,23 @@ describe("createWorkoutHistory", () => {
       {
         method: "POST",
         body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  });
+});
+
+describe("getTimezones", () => {
+  it("calls GET /api/settings/timezones", async () => {
+    const data = [{ value: "Asia/Tokyo", label: "Asia/Tokyo" }];
+    const fetchMock = mockFetchResponse(data);
+    vi.stubGlobal("fetch", fetchMock);
+    const result = await getTimezones();
+    expect(result).toEqual(data);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_URL}/api/settings/timezones`,
+      {
+        cache: "no-store",
         headers: { "Content-Type": "application/json" },
       }
     );

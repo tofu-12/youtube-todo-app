@@ -6,6 +6,13 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 
+class TimezoneOption(BaseModel):
+    """A timezone option for the settings UI."""
+
+    value: str
+    label: str
+
+
 class SettingsUpdateRequest(BaseModel):
     """Request body for updating user settings."""
 

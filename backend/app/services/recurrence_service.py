@@ -6,12 +6,13 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+import app.api.schemas.recurrence as api_recurrence_schema
 from app.api.schemas.recurrence import RecurrenceRequest
 from app.core.types import DayOfWeek, RecurrenceType
 from app.crud import recurrence as crud_recurrence
 from app.crud import video as crud_video
-from app.crud.schemas.recurrence import RecurrenceResponse, RecurrenceUpsert
-from app.crud.schemas.video import VideoUpdate
+import app.crud.schemas.recurrence as crud_recurrence_schema
+import app.crud.schemas.video as crud_video_schema
 
 _WEEKDAY_MAP: dict[DayOfWeek, int] = {
     DayOfWeek.MON: 0,
@@ -69,7 +70,7 @@ def upsert_video_recurrence(
     user_id: uuid.UUID,
     video_id: uuid.UUID,
     data: RecurrenceRequest,
-) -> Optional[RecurrenceResponse]:
+) -> Optional[crud_recurrence_schema.RecurrenceResponse]:
     """Create or update a video recurrence and recalculate schedule.
 
     Args:
@@ -86,7 +87,7 @@ def upsert_video_recurrence(
     if video is None:
         return None
 
-    upsert_data = RecurrenceUpsert(
+    upsert_data = crud_recurrence_schema.RecurrenceUpsert(
         user_id=user_id,
         video_id=video_id,
         recurrence_type=data.recurrence_type,
@@ -104,7 +105,7 @@ def upsert_video_recurrence(
             data.weekdays,
         )
         crud_video.update_video(
-            db, video_id, VideoUpdate(next_scheduled_date=next_date), user_id
+            db, video_id, crud_video_schema.VideoUpdate(next_scheduled_date=next_date), user_id
         )
 
     return result

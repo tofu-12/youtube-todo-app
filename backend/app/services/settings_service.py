@@ -6,25 +6,27 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.schemas.settings import SettingsOut, SettingsUpdateRequest, TimezoneOption
+import app.api.schemas.settings as api_settings_schema
+from app.api.schemas.settings import SettingsUpdateRequest
 from app.core.types import Timezone
 from app.crud import user as crud_user
+import app.crud.schemas.user as crud_user_schema
 from app.crud.schemas.user import UserUpdate
 
 
-def get_available_timezones() -> list[TimezoneOption]:
+def get_available_timezones() -> list[api_settings_schema.TimezoneOption]:
     """Return a list of available timezone options.
 
     Returns:
         A list of TimezoneOption with value and label for each supported timezone.
     """
     return [
-        TimezoneOption(value=tz.value, label=tz.value)
+        api_settings_schema.TimezoneOption(value=tz.value, label=tz.value)
         for tz in Timezone
     ]
 
 
-def get_settings(db: Session, user_id: uuid.UUID) -> SettingsOut | None:
+def get_settings(db: Session, user_id: uuid.UUID) -> api_settings_schema.SettingsResponse | None:
     """Get user settings.
 
     Args:
@@ -37,7 +39,7 @@ def get_settings(db: Session, user_id: uuid.UUID) -> SettingsOut | None:
     user = crud_user.get_user(db, user_id)
     if user is None:
         return None
-    return SettingsOut(
+    return api_settings_schema.SettingsResponse(
         day_change_time=user.day_change_time,
         timezone=user.timezone,
     )
@@ -45,7 +47,7 @@ def get_settings(db: Session, user_id: uuid.UUID) -> SettingsOut | None:
 
 def update_settings(
     db: Session, user_id: uuid.UUID, data: SettingsUpdateRequest
-) -> SettingsOut | None:
+) -> api_settings_schema.SettingsResponse | None:
     """Update user settings with timezone validation.
 
     Args:
@@ -72,7 +74,7 @@ def update_settings(
     user = crud_user.update_user(db, user_id, update_data)
     if user is None:
         return None
-    return SettingsOut(
+    return api_settings_schema.SettingsResponse(
         day_change_time=user.day_change_time,
         timezone=user.timezone,
     )

@@ -17,7 +17,7 @@ class RecurrenceRequest(BaseModel):
     weekdays: list[DayOfWeek] = []
 
 
-class RecurrenceOut(BaseModel):
+class RecurrenceResponse(BaseModel):
     """Recurrence output schema for API responses."""
 
     model_config = ConfigDict(from_attributes=True)

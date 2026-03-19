@@ -12,6 +12,7 @@ const navItems = [
   { href: "/overdue", label: "未実施" },
   { href: "/videos", label: "動画一覧" },
   { href: "/videos/new", label: "動画登録" },
+  { href: "/settings", label: "設定" },
 ];
 
 export default function RootLayout({

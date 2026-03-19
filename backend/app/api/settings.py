@@ -3,12 +3,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.schemas.settings import SettingsOut, SettingsUpdateRequest
+from app.api.schemas.settings import SettingsOut, SettingsUpdateRequest, TimezoneOption
 from app.core.dependencies import get_current_user, get_db
 from app.crud.schemas.user import UserResponse
 from app.services import settings_service
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
+
+
+@router.get("/timezones", response_model=list[TimezoneOption])
+def get_timezones() -> list[TimezoneOption]:
+    """Get available timezone options."""
+    return settings_service.get_available_timezones()
 
 
 @router.get("", response_model=SettingsOut)

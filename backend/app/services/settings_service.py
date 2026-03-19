@@ -6,9 +6,22 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.schemas.settings import SettingsOut, SettingsUpdateRequest
+from app.api.schemas.settings import SettingsOut, SettingsUpdateRequest, TimezoneOption
+from app.core.types import Timezone
 from app.crud import user as crud_user
 from app.crud.schemas.user import UserUpdate
+
+
+def get_available_timezones() -> list[TimezoneOption]:
+    """Return a list of available timezone options.
+
+    Returns:
+        A list of TimezoneOption with value and label for each supported timezone.
+    """
+    return [
+        TimezoneOption(value=tz.value, label=tz.value)
+        for tz in Timezone
+    ]
 
 
 def get_settings(db: Session, user_id: uuid.UUID) -> SettingsOut | None:

@@ -3,6 +3,7 @@ import type {
   RecurrenceRequest,
   SettingsOut,
   SettingsUpdateRequest,
+  TimezoneOption,
   TodayVideoOut,
   TodoHistoryCreateRequest,
   TodoHistoryOut,
@@ -169,6 +170,12 @@ export async function deleteWorkoutHistory(id: string): Promise<void> {
 }
 
 // Settings
+
+export async function getTimezones(): Promise<TimezoneOption[]> {
+  return fetchApi<TimezoneOption[]>("/api/settings/timezones", {
+    cache: "no-store",
+  });
+}
 
 export async function getSettings(): Promise<SettingsOut> {
   return fetchApi<SettingsOut>("/api/settings", { cache: "no-store" });

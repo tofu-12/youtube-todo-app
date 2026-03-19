@@ -26,11 +26,16 @@ def _resolve_tags(
     return tag_ids
 
 
+def _build_tag_outs(db: Session, video_id: uuid.UUID) -> list[TagOut]:
+    """Fetch tags for a video and convert to TagOut schemas."""
+    tags = crud_video_tag.get_video_tags(db, video_id)
+    return [TagOut(id=t.id, name=t.name) for t in tags]
+
+
 def _build_video_out(
     db: Session, video_resp: "VideoResponse"
 ) -> VideoOut:
     """Build a VideoOut from a VideoResponse by attaching tags."""
-    tags = crud_video_tag.get_video_tags(db, video_resp.id)
     return VideoOut(
         id=video_resp.id,
         name=video_resp.name,
@@ -38,7 +43,7 @@ def _build_video_out(
         comment=video_resp.comment,
         last_performed_date=video_resp.last_performed_date,
         next_scheduled_date=video_resp.next_scheduled_date,
-        tags=[TagOut(id=t.id, name=t.name) for t in tags],
+        tags=_build_tag_outs(db, video_resp.id),
         created_at=video_resp.created_at,
         updated_at=video_resp.updated_at,
     )
@@ -162,7 +167,6 @@ def get_today_videos(
     result = []
     for v in videos:
         if v.next_scheduled_date is not None and v.next_scheduled_date <= today:
-            tags = crud_video_tag.get_video_tags(db, v.id)
             result.append(
                 TodayVideoOut(
                     id=v.id,
@@ -170,7 +174,7 @@ def get_today_videos(
                     url=v.url,
                     comment=v.comment,
                     next_scheduled_date=v.next_scheduled_date,
-                    tags=[TagOut(id=t.id, name=t.name) for t in tags],
+                    tags=_build_tag_outs(db, v.id),
                 )
             )
     return result
@@ -193,7 +197,6 @@ def get_overdue_videos(
     result = []
     for v in videos:
         if v.next_scheduled_date is not None and v.next_scheduled_date < today:
-            tags = crud_video_tag.get_video_tags(db, v.id)
             result.append(
                 TodayVideoOut(
                     id=v.id,
@@ -201,7 +204,7 @@ def get_overdue_videos(
                     url=v.url,
                     comment=v.comment,
                     next_scheduled_date=v.next_scheduled_date,
-                    tags=[TagOut(id=t.id, name=t.name) for t in tags],
+                    tags=_build_tag_outs(db, v.id),
                 )
             )
     return result

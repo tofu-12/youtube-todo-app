@@ -13,7 +13,7 @@ class WorkoutHistoryCreateRequest(BaseModel):
     expires_days: int = Field(gt=0)
 
 
-class WorkoutHistoryOut(BaseModel):
+class WorkoutHistoryResponse(BaseModel):
     """Workout history output schema for API responses."""
 
     model_config = ConfigDict(from_attributes=True)

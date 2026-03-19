@@ -16,7 +16,7 @@ class TodoHistoryCreateRequest(BaseModel):
     status: TodoStatus
 
 
-class TodoHistoryOut(BaseModel):
+class TodoHistoryResponse(BaseModel):
     """Todo history output schema for API responses."""
 
     model_config = ConfigDict(from_attributes=True)

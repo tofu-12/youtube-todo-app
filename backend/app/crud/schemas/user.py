@@ -13,6 +13,7 @@ class UserInsert(BaseModel):
     email: str
     day_change_time: datetime.time = datetime.time(0, 0)
     timezone: str = "Asia/Tokyo"
+    workout_history_expires_days: int = 90
 
 
 class UserUpdate(BaseModel):
@@ -20,6 +21,7 @@ class UserUpdate(BaseModel):
 
     day_change_time: Optional[datetime.time] = None
     timezone: Optional[str] = None
+    workout_history_expires_days: Optional[int] = None
 
 
 class UserResponse(BaseModel):
@@ -31,5 +33,6 @@ class UserResponse(BaseModel):
     email: str
     day_change_time: datetime.time
     timezone: str
+    workout_history_expires_days: int
     created_at: datetime.datetime
     updated_at: datetime.datetime

@@ -42,6 +42,7 @@ def get_settings(db: Session, user_id: uuid.UUID) -> api_settings_schema.Setting
     return api_settings_schema.SettingsResponse(
         day_change_time=user.day_change_time,
         timezone=user.timezone,
+        workout_history_expires_days=user.workout_history_expires_days,
     )
 
 
@@ -77,4 +78,5 @@ def update_settings(
     return api_settings_schema.SettingsResponse(
         day_change_time=user.day_change_time,
         timezone=user.timezone,
+        workout_history_expires_days=user.workout_history_expires_days,
     )

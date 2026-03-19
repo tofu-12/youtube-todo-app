@@ -66,7 +66,6 @@ describe("complete button", () => {
       });
       expect(mockCreateWorkoutHistory).toHaveBeenCalledWith({
         video_id: "v1",
-        expires_days: 7,
       });
       expect(mockRefresh).toHaveBeenCalled();
     });

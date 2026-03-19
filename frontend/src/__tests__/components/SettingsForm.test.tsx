@@ -19,6 +19,7 @@ vi.mock("@/lib/api", () => ({
 const initialSettings: SettingsOut = {
   day_change_time: "04:00:00",
   timezone: "Asia/Tokyo",
+  workout_history_expires_days: 90,
 };
 
 const timezoneOptions: TimezoneOption[] = [
@@ -39,9 +40,10 @@ describe("SettingsForm", () => {
         timezoneOptions={timezoneOptions}
       />
     );
-    const select = screen.getByRole("combobox");
-    expect(select).toHaveValue("Asia/Tokyo");
+    const selects = screen.getAllByRole("combobox");
+    expect(selects[0]).toHaveValue("Asia/Tokyo");
     expect(screen.getByDisplayValue("04:00")).toBeInTheDocument();
+    expect(selects[1]).toHaveValue("90");
   });
 
   it("renders all timezone options", () => {
@@ -52,7 +54,8 @@ describe("SettingsForm", () => {
       />
     );
     const options = screen.getAllByRole("option");
-    expect(options).toHaveLength(3);
+    // 3 timezone options + 5 expires_days options
+    expect(options).toHaveLength(8);
   });
 
   it("calls updateSettings on submit", async () => {
@@ -64,13 +67,15 @@ describe("SettingsForm", () => {
       />
     );
 
-    await user.selectOptions(screen.getByRole("combobox"), "America/New_York");
+    const selects = screen.getAllByRole("combobox");
+    await user.selectOptions(selects[0], "America/New_York");
     await user.click(screen.getByRole("button", { name: "保存" }));
 
     await waitFor(() => {
       expect(mockUpdateSettings).toHaveBeenCalledWith({
         timezone: "America/New_York",
         day_change_time: "04:00",
+        workout_history_expires_days: 90,
       });
       expect(mockRefresh).toHaveBeenCalled();
     });
@@ -97,6 +102,43 @@ describe("SettingsForm", () => {
     expect(screen.getByRole("button", { name: "保存中..." })).toBeDisabled();
 
     resolvePromise!({ day_change_time: "04:00:00", timezone: "Asia/Tokyo" });
+  });
+
+  it("renders workout history expires days select", () => {
+    render(
+      <SettingsForm
+        initialSettings={initialSettings}
+        timezoneOptions={timezoneOptions}
+      />
+    );
+    expect(
+      screen.getByText("ワークアウト履歴の有効期限")
+    ).toBeInTheDocument();
+    const selects = screen.getAllByRole("combobox");
+    const expiresSelect = selects[1];
+    expect(expiresSelect).toHaveValue("90");
+  });
+
+  it("updates workout_history_expires_days on submit", async () => {
+    const user = userEvent.setup();
+    render(
+      <SettingsForm
+        initialSettings={initialSettings}
+        timezoneOptions={timezoneOptions}
+      />
+    );
+
+    const selects = screen.getAllByRole("combobox");
+    await user.selectOptions(selects[1], "180");
+    await user.click(screen.getByRole("button", { name: "保存" }));
+
+    await waitFor(() => {
+      expect(mockUpdateSettings).toHaveBeenCalledWith({
+        timezone: "Asia/Tokyo",
+        day_change_time: "04:00",
+        workout_history_expires_days: 180,
+      });
+    });
   });
 
   it("shows alert on error", async () => {

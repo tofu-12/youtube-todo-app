@@ -63,9 +63,11 @@ class TestUserResponse:
             "email": "resp@example.com",
             "day_change_time": datetime.time(0, 0),
             "timezone": "Asia/Tokyo",
+            "workout_history_expires_days": 90,
             "created_at": now,
             "updated_at": now,
         }
         result = UserResponse.model_validate(obj)
         assert result.timezone == "Asia/Tokyo"
+        assert result.workout_history_expires_days == 90
         assert result.id == obj["id"]

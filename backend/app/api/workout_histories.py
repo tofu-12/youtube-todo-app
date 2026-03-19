@@ -68,7 +68,7 @@ def create_workout_history(
         user.day_change_time, user.timezone
     )
     performed_at = datetime.datetime.now(datetime.timezone.utc)
-    expires_date = performed_date + datetime.timedelta(days=data.expires_days)
+    expires_date = performed_date + datetime.timedelta(days=user.workout_history_expires_days)
 
     insert_data = crud_workout_history_schema.WorkoutHistoryInsert(
         user_id=user.id,

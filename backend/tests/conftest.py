@@ -42,10 +42,33 @@ $$ LANGUAGE plpgsql;
 """
 
 
+def _ensure_test_database_exists(database_url: str) -> None:
+    """Create the test database if it does not already exist."""
+    from sqlalchemy.engine import make_url
+
+    url = make_url(database_url)
+    test_db_name = url.database
+
+    # Connect to the default 'postgres' database to check/create the test DB.
+    maintenance_url = url.set(database="postgres")
+    maintenance_engine = create_engine(maintenance_url, isolation_level="AUTOCOMMIT")
+
+    with maintenance_engine.connect() as conn:
+        result = conn.execute(
+            text("SELECT 1 FROM pg_database WHERE datname = :dbname"),
+            {"dbname": test_db_name},
+        )
+        if not result.scalar():
+            conn.execute(text(f'CREATE DATABASE "{test_db_name}"'))
+
+    maintenance_engine.dispose()
+
+
 @pytest.fixture(scope="session")
 def engine():
     """Create a SQLAlchemy engine connected to the test database."""
     settings = TestSettings()
+    _ensure_test_database_exists(settings.DATABASE_URL)
     eng = create_engine(settings.DATABASE_URL)
     yield eng
     eng.dispose()

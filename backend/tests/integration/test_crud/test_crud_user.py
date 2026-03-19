@@ -12,11 +12,12 @@ class TestCreateUser:
 
     def test_create_user_defaults(self, db):
         """Creating a user with defaults yields 00:00 and Asia/Tokyo."""
-        data = UserInsert()
+        data = UserInsert(email="defaults@example.com")
         result = create_user(db, data)
 
         assert result.day_change_time == datetime.time(0, 0)
         assert result.timezone == "Asia/Tokyo"
+        assert result.email == "defaults@example.com"
         assert result.id is not None
         assert result.created_at is not None
         assert result.updated_at is not None
@@ -24,7 +25,9 @@ class TestCreateUser:
     def test_create_user_custom_values(self, db):
         """Creating a user with custom values stores them correctly."""
         data = UserInsert(
-            day_change_time=datetime.time(5, 0), timezone="UTC"
+            email="custom@example.com",
+            day_change_time=datetime.time(5, 0),
+            timezone="UTC",
         )
         result = create_user(db, data)
 

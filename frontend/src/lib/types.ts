@@ -22,6 +22,13 @@ export enum TodoStatus {
   SKIPPED = "skipped",
 }
 
+// Auth types
+
+export interface AuthResponse {
+  id: string;
+  email: string;
+}
+
 // Response types
 
 export interface TagOut {

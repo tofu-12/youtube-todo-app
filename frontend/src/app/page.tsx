@@ -1,8 +1,23 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getTodayVideos } from "@/lib/api";
 import TodoItem from "@/components/TodoItem";
+import type { TodayVideoOut } from "@/lib/types";
 
-export default async function HomePage() {
-  const videos = await getTodayVideos();
+export default function HomePage() {
+  const [videos, setVideos] = useState<TodayVideoOut[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getTodayVideos()
+      .then(setVideos)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <p className="text-gray-500">読み込み中...</p>;
+  }
 
   return (
     <div>

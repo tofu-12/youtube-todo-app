@@ -18,6 +18,9 @@ class User(TimestampMixin, Base):
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True, default=uuid.uuid4
     )
+    email: Mapped[str] = mapped_column(
+        String(255), unique=True, nullable=False
+    )
     day_change_time: Mapped[datetime.time] = mapped_column(
         Time, default=datetime.time(0, 0), nullable=False
     )

@@ -1,8 +1,23 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { getOverdueVideos } from "@/lib/api";
 import TodoItem from "@/components/TodoItem";
+import type { TodayVideoOut } from "@/lib/types";
 
-export default async function OverduePage() {
-  const videos = await getOverdueVideos();
+export default function OverduePage() {
+  const [videos, setVideos] = useState<TodayVideoOut[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getOverdueVideos()
+      .then(setVideos)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <p className="text-gray-500">読み込み中...</p>;
+  }
 
   return (
     <div>

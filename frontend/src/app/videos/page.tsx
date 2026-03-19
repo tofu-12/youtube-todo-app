@@ -1,8 +1,23 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getVideos } from "@/lib/api";
+import type { VideoOut } from "@/lib/types";
 
-export default async function VideosPage() {
-  const videos = await getVideos();
+export default function VideosPage() {
+  const [videos, setVideos] = useState<VideoOut[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getVideos()
+      .then(setVideos)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <p className="text-gray-500">読み込み中...</p>;
+  }
 
   return (
     <div>

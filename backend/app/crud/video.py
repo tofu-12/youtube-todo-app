@@ -4,7 +4,7 @@ import uuid
 from typing import Optional
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.crud.schemas.video import (
     VideoFilter,
@@ -13,6 +13,7 @@ from app.crud.schemas.video import (
     VideoUpdate,
 )
 from app.models.video import Video
+from app.models.video_tag import VideoTag
 
 
 def create_video(db: Session, data: VideoInsert) -> VideoResponse:
@@ -40,6 +41,16 @@ def get_videos(db: Session, filter_: VideoFilter) -> list[VideoResponse]:
     stmt = select(Video).where(Video.user_id == filter_.user_id)
     videos = db.scalars(stmt).all()
     return [VideoResponse.model_validate(v) for v in videos]
+
+
+def get_videos_with_tags(db: Session, filter_: VideoFilter) -> list[Video]:
+    """Get all videos for a user with tags eagerly loaded."""
+    stmt = (
+        select(Video)
+        .where(Video.user_id == filter_.user_id)
+        .options(selectinload(Video.video_tags).selectinload(VideoTag.tag))
+    )
+    return list(db.scalars(stmt).all())
 
 
 def update_video(

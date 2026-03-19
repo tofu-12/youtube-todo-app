@@ -10,7 +10,6 @@ from app.core.date import get_logical_today
 from app.crud import tag as crud_tag
 from app.crud import video as crud_video
 from app.crud import video_tag as crud_video_tag
-from app.crud.schemas.tag import TagInsert
 from app.crud.schemas.user import UserResponse
 from app.crud.schemas.video import VideoFilter, VideoInsert, VideoResponse, VideoUpdate
 
@@ -19,11 +18,13 @@ def _resolve_tags(
     db: Session, user_id: uuid.UUID, tag_names: list[str]
 ) -> list[uuid.UUID]:
     """Resolve tag names to tag IDs, creating tags as needed."""
-    tag_ids = []
-    for name in tag_names:
-        tag = crud_tag.get_or_create_tag(db, TagInsert(user_id=user_id, name=name))
-        tag_ids.append(tag.id)
-    return tag_ids
+    tags = crud_tag.get_or_create_tags_bulk(db, user_id, tag_names)
+    return [t.id for t in tags]
+
+
+def _extract_tag_outs(video: "Video") -> list[TagOut]:
+    """Extract TagOut list from an eagerly loaded Video object."""
+    return [TagOut(id=vt.tag.id, name=vt.tag.name) for vt in video.video_tags]
 
 
 def _build_tag_outs(db: Session, video_id: uuid.UUID) -> list[TagOut]:
@@ -103,8 +104,21 @@ def list_videos(
     Returns:
         List of videos with tags.
     """
-    videos = crud_video.get_videos(db, VideoFilter(user_id=user_id))
-    return [_build_video_out(db, v) for v in videos]
+    videos = crud_video.get_videos_with_tags(db, VideoFilter(user_id=user_id))
+    return [
+        VideoOut(
+            id=v.id,
+            name=v.name,
+            url=v.url,
+            comment=v.comment,
+            last_performed_date=v.last_performed_date,
+            next_scheduled_date=v.next_scheduled_date,
+            tags=_extract_tag_outs(v),
+            created_at=v.created_at,
+            updated_at=v.updated_at,
+        )
+        for v in videos
+    ]
 
 
 def update_video(
@@ -163,7 +177,7 @@ def get_today_videos(
         List of videos due today.
     """
     today = get_logical_today(user.day_change_time, user.timezone)
-    videos = crud_video.get_videos(db, VideoFilter(user_id=user.id))
+    videos = crud_video.get_videos_with_tags(db, VideoFilter(user_id=user.id))
     result = []
     for v in videos:
         if v.next_scheduled_date is not None and v.next_scheduled_date <= today:
@@ -174,7 +188,7 @@ def get_today_videos(
                     url=v.url,
                     comment=v.comment,
                     next_scheduled_date=v.next_scheduled_date,
-                    tags=_build_tag_outs(db, v.id),
+                    tags=_extract_tag_outs(v),
                 )
             )
     return result
@@ -193,7 +207,7 @@ def get_overdue_videos(
         List of overdue videos.
     """
     today = get_logical_today(user.day_change_time, user.timezone)
-    videos = crud_video.get_videos(db, VideoFilter(user_id=user.id))
+    videos = crud_video.get_videos_with_tags(db, VideoFilter(user_id=user.id))
     result = []
     for v in videos:
         if v.next_scheduled_date is not None and v.next_scheduled_date < today:
@@ -204,7 +218,7 @@ def get_overdue_videos(
                     url=v.url,
                     comment=v.comment,
                     next_scheduled_date=v.next_scheduled_date,
-                    tags=_build_tag_outs(db, v.id),
+                    tags=_extract_tag_outs(v),
                 )
             )
     return result

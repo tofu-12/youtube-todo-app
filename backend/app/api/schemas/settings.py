@@ -13,7 +13,7 @@ class SettingsUpdateRequest(BaseModel):
     timezone: Optional[str] = None
 
 
-class SettingsOut(BaseModel):
+class SettingsResponse(BaseModel):
     """Settings output schema for API responses."""
 
     model_config = ConfigDict(from_attributes=True)

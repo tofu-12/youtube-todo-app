@@ -6,10 +6,10 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
-from app.api.schemas.video import TagOut
+from app.api.schemas.video import TagResponse
 
 
-class TodayVideoOut(BaseModel):
+class TodayVideoResponse(BaseModel):
     """Video output schema for today/overdue lists."""
 
     model_config = ConfigDict(from_attributes=True)
@@ -19,4 +19,4 @@ class TodayVideoOut(BaseModel):
     url: str
     comment: Optional[str]
     next_scheduled_date: Optional[datetime.date]
-    tags: list[TagOut]
+    tags: list[TagResponse]

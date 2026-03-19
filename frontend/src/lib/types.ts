@@ -89,6 +89,7 @@ export interface VideoCreateRequest {
   name: string;
   url: string;
   comment?: string | null;
+  next_scheduled_date?: string | null;
   tag_names?: string[];
 }
 
@@ -96,6 +97,7 @@ export interface VideoUpdateRequest {
   name?: string;
   url?: string;
   comment?: string | null;
+  next_scheduled_date?: string | null;
   tag_names?: string[];
 }
 

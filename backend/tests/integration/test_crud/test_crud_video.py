@@ -32,6 +32,17 @@ class TestCreateVideo:
         assert result.next_scheduled_date is None
         assert result.user_id == sample_user.id
 
+    def test_create_video_with_next_scheduled_date(self, db, sample_user):
+        """Creating a video with next_scheduled_date stores it."""
+        data = VideoInsert(
+            user_id=sample_user.id,
+            name="Scheduled Workout",
+            url="https://www.youtube.com/watch?v=sched",
+            next_scheduled_date=datetime.date(2026, 4, 1),
+        )
+        result = create_video(db, data)
+        assert result.next_scheduled_date == datetime.date(2026, 4, 1)
+
     def test_create_video_with_comment(self, db, sample_user):
         """Creating a video with a comment stores it."""
         data = VideoInsert(

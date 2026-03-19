@@ -33,6 +33,20 @@ class TestCreateVideo:
         assert data["url"] == "https://youtube.com/watch?v=test"
         assert data["tags"] == []
 
+    def test_create_with_next_scheduled_date(self, client):
+        """POST /api/videos with next_scheduled_date returns 201."""
+        payload = {
+            "name": "Scheduled Video",
+            "url": "https://youtube.com/watch?v=sched",
+            "next_scheduled_date": "2026-04-01",
+        }
+
+        response = client.post("/api/videos", json=payload)
+
+        assert response.status_code == 201
+        data = response.json()
+        assert data["next_scheduled_date"] == "2026-04-01"
+
     def test_create_with_tags(self, client):
         """POST /api/videos with tag_names returns 201 with tags."""
         payload = {
@@ -75,6 +89,16 @@ class TestUpdateVideo:
 
         assert response.status_code == 200
         assert response.json()["name"] == "Updated Name"
+
+    def test_update_next_scheduled_date(self, client, sample_video):
+        """PUT /api/videos/{video_id} with next_scheduled_date updates it."""
+        response = client.put(
+            f"/api/videos/{sample_video.id}",
+            json={"next_scheduled_date": "2026-05-15"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["next_scheduled_date"] == "2026-05-15"
 
     def test_not_found(self, client):
         """PUT /api/videos/{video_id} returns 404 for non-existent video."""

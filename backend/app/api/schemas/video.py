@@ -15,6 +15,7 @@ class VideoCreateRequest(BaseModel):
     name: str
     url: str
     comment: Optional[str] = None
+    next_scheduled_date: Optional[datetime.date] = None
     tag_names: list[str] = []
 
     @field_validator("url")
@@ -30,6 +31,7 @@ class VideoUpdateRequest(BaseModel):
     name: Optional[str] = None
     url: Optional[str] = None
     comment: Optional[str] = None
+    next_scheduled_date: Optional[datetime.date] = None
     tag_names: Optional[list[str]] = None
 
     @field_validator("url")

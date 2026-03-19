@@ -3,14 +3,13 @@
 import datetime
 import uuid
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class WorkoutHistoryCreateRequest(BaseModel):
     """Request body for creating a workout history entry."""
 
     video_id: uuid.UUID
-    expires_days: int = Field(gt=0)
 
 
 class WorkoutHistoryResponse(BaseModel):

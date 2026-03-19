@@ -3,7 +3,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import String, Time
+from sqlalchemy import CheckConstraint, Integer, String, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -14,6 +14,12 @@ class User(TimestampMixin, Base):
     """User table storing per-user settings."""
 
     __tablename__ = "users"
+    __table_args__ = (
+        CheckConstraint(
+            "workout_history_expires_days >= 1 AND workout_history_expires_days <= 365",
+            name="ck_users_workout_history_expires_days",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         primary_key=True, default=uuid.uuid4
@@ -26,6 +32,9 @@ class User(TimestampMixin, Base):
     )
     timezone: Mapped[str] = mapped_column(
         String(50), default="Asia/Tokyo", nullable=False
+    )
+    workout_history_expires_days: Mapped[int] = mapped_column(
+        Integer, default=90, nullable=False
     )
 
     # Relationships (cascade delete all child records)

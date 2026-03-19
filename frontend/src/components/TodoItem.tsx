@@ -20,7 +20,6 @@ export default function TodoItem({ video }: { video: TodayVideoOut }) {
       });
       await createWorkoutHistory({
         video_id: video.id,
-        expires_days: 7,
       });
       router.refresh();
     } catch (e) {

@@ -3,7 +3,7 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TimezoneOption(BaseModel):
@@ -18,6 +18,9 @@ class SettingsUpdateRequest(BaseModel):
 
     day_change_time: Optional[datetime.time] = None
     timezone: Optional[str] = None
+    workout_history_expires_days: Optional[int] = Field(
+        default=None, ge=1, le=365
+    )
 
 
 class SettingsResponse(BaseModel):
@@ -27,3 +30,4 @@ class SettingsResponse(BaseModel):
 
     day_change_time: datetime.time
     timezone: str
+    workout_history_expires_days: int

@@ -19,6 +19,9 @@ export default function SettingsForm({
   const [dayChangeTime, setDayChangeTime] = useState(
     initialSettings.day_change_time.slice(0, 5)
   );
+  const [workoutHistoryExpiresDays, setWorkoutHistoryExpiresDays] = useState(
+    initialSettings.workout_history_expires_days
+  );
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,6 +31,7 @@ export default function SettingsForm({
       await updateSettings({
         timezone,
         day_change_time: dayChangeTime,
+        workout_history_expires_days: workoutHistoryExpiresDays,
       });
       router.refresh();
       alert("設定を保存しました");
@@ -67,6 +71,25 @@ export default function SettingsForm({
           onChange={(e) => setDayChangeTime(e.target.value)}
           className="mt-1 block w-full rounded border-gray-300 shadow-sm"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          ワークアウト履歴の有効期限
+        </label>
+        <select
+          value={workoutHistoryExpiresDays}
+          onChange={(e) =>
+            setWorkoutHistoryExpiresDays(Number(e.target.value))
+          }
+          className="mt-1 block w-full rounded border-gray-300 shadow-sm"
+        >
+          <option value={30}>30日</option>
+          <option value={60}>60日</option>
+          <option value={90}>90日</option>
+          <option value={180}>180日</option>
+          <option value={365}>365日</option>
+        </select>
       </div>
 
       <button

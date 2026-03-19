@@ -29,6 +29,7 @@ class TestGetSettings:
         data = response.json()
         assert data["timezone"] == "Asia/Tokyo"
         assert data["day_change_time"] == "00:00:00"
+        assert data["workout_history_expires_days"] == 90
 
 
 class TestUpdateSettings:
@@ -50,3 +51,31 @@ class TestUpdateSettings:
         )
 
         assert response.status_code == 400
+
+    def test_update_workout_history_expires_days(self, client):
+        """PUT /api/settings updates workout_history_expires_days."""
+        response = client.put(
+            "/api/settings",
+            json={"workout_history_expires_days": 180},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["workout_history_expires_days"] == 180
+
+    def test_workout_history_expires_days_too_low(self, client):
+        """PUT /api/settings with expires_days=0 returns 422."""
+        response = client.put(
+            "/api/settings",
+            json={"workout_history_expires_days": 0},
+        )
+
+        assert response.status_code == 422
+
+    def test_workout_history_expires_days_too_high(self, client):
+        """PUT /api/settings with expires_days=366 returns 422."""
+        response = client.put(
+            "/api/settings",
+            json={"workout_history_expires_days": 366},
+        )
+
+        assert response.status_code == 422

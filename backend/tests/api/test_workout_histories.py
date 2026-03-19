@@ -12,10 +12,9 @@ class TestListWorkoutHistories:
 
 class TestCreateWorkoutHistory:
     def test_create(self, client, sample_video):
-        """POST /api/workout-histories returns 201."""
+        """POST /api/workout-histories returns 201 using user settings expires_days."""
         payload = {
             "video_id": str(sample_video.id),
-            "expires_days": 3,
         }
 
         response = client.post("/api/workout-histories", json=payload)
@@ -26,12 +25,10 @@ class TestCreateWorkoutHistory:
         assert "performed_date" in data
         assert "expires_date" in data
 
-
     def test_create_with_nonexistent_video(self, client):
         """POST /api/workout-histories with nonexistent video_id returns 404."""
         payload = {
             "video_id": str(uuid.uuid4()),
-            "expires_days": 3,
         }
 
         response = client.post("/api/workout-histories", json=payload)
@@ -39,27 +36,24 @@ class TestCreateWorkoutHistory:
         assert response.status_code == 404
         assert response.json()["detail"] == "Video not found"
 
-    def test_create_with_zero_expires_days(self, client, sample_video):
-        """POST /api/workout-histories with expires_days=0 returns 422."""
-        payload = {
-            "video_id": str(sample_video.id),
-            "expires_days": 0,
-        }
+    def test_create_uses_user_settings_expires_days(self, client, sample_video):
+        """POST /api/workout-histories uses the user's workout_history_expires_days setting."""
+        # Update user setting to 30 days
+        client.put(
+            "/api/settings",
+            json={"workout_history_expires_days": 30},
+        )
 
+        payload = {"video_id": str(sample_video.id)}
         response = client.post("/api/workout-histories", json=payload)
 
-        assert response.status_code == 422
+        assert response.status_code == 201
+        data = response.json()
+        from datetime import date, timedelta
 
-    def test_create_with_negative_expires_days(self, client, sample_video):
-        """POST /api/workout-histories with negative expires_days returns 422."""
-        payload = {
-            "video_id": str(sample_video.id),
-            "expires_days": -1,
-        }
-
-        response = client.post("/api/workout-histories", json=payload)
-
-        assert response.status_code == 422
+        performed = date.fromisoformat(data["performed_date"])
+        expires = date.fromisoformat(data["expires_date"])
+        assert (expires - performed).days == 30
 
 
 class TestDeleteWorkoutHistory:
@@ -69,7 +63,6 @@ class TestDeleteWorkoutHistory:
             "/api/workout-histories",
             json={
                 "video_id": str(sample_video.id),
-                "expires_days": 3,
             },
         )
         entry_id = create_resp.json()["id"]

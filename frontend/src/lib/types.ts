@@ -88,6 +88,7 @@ export interface WorkoutHistoryOut {
 export interface SettingsOut {
   day_change_time: string;
   timezone: string;
+  workout_history_expires_days: number;
 }
 
 export interface TimezoneOption {
@@ -127,10 +128,10 @@ export interface TodoHistoryCreateRequest {
 
 export interface WorkoutHistoryCreateRequest {
   video_id: string;
-  expires_days: number;
 }
 
 export interface SettingsUpdateRequest {
   day_change_time?: string;
   timezone?: string;
+  workout_history_expires_days?: number;
 }

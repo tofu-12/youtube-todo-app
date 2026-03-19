@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { VideoOut, RecurrenceOut } from "@/lib/types";
+import type { VideoOut, RecurrenceOut, TagOut } from "@/lib/types";
 import { RecurrenceType, DayOfWeek } from "@/lib/types";
 import { createVideo, updateVideo, upsertRecurrence } from "@/lib/api";
+import TagInput from "@/components/TagInput";
 
 interface VideoFormProps {
   mode: "create" | "edit";
@@ -33,8 +34,8 @@ export default function VideoForm({
   const [name, setName] = useState(initialData?.name ?? "");
   const [url, setUrl] = useState(initialData?.url ?? "");
   const [comment, setComment] = useState(initialData?.comment ?? "");
-  const [tagInput, setTagInput] = useState(
-    initialData?.tags.map((t) => t.name).join(", ") ?? ""
+  const [selectedTags, setSelectedTags] = useState<TagOut[]>(
+    initialData?.tags ?? []
   );
   const [nextScheduledDate, setNextScheduledDate] = useState(
     initialData?.next_scheduled_date ?? ""
@@ -61,10 +62,7 @@ export default function VideoForm({
     setLoading(true);
 
     try {
-      const tagNames = tagInput
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      const tagNames = selectedTags.map((t) => t.name);
 
       let videoId: string;
 
@@ -150,16 +148,10 @@ export default function VideoForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">
-          タグ（カンマ区切り）
-        </label>
-        <input
-          type="text"
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          placeholder="例: 胸, 腕, 背中"
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-        />
+        <label className="block text-sm font-medium text-gray-700">タグ</label>
+        <div className="mt-1">
+          <TagInput selectedTags={selectedTags} onChange={setSelectedTags} />
+        </div>
       </div>
 
       <div>

@@ -3,6 +3,7 @@ import type {
   RecurrenceRequest,
   SettingsOut,
   SettingsUpdateRequest,
+  TagOut,
   TodayVideoOut,
   TodoHistoryCreateRequest,
   TodoHistoryOut,
@@ -37,6 +38,12 @@ async function fetchApi<T>(
   }
 
   return res.json() as Promise<T>;
+}
+
+// Tags
+
+export async function getTags(): Promise<TagOut[]> {
+  return fetchApi<TagOut[]>("/api/tags", { cache: "no-store" });
 }
 
 // Videos

@@ -43,7 +43,7 @@ class VideoUpdateRequest(BaseModel):
         return v
 
 
-class TagOut(BaseModel):
+class TagResponse(BaseModel):
     """Tag output schema for API responses."""
 
     model_config = ConfigDict(from_attributes=True)
@@ -52,7 +52,7 @@ class TagOut(BaseModel):
     name: str
 
 
-class VideoOut(BaseModel):
+class VideoResponse(BaseModel):
     """Video output schema for API responses."""
 
     model_config = ConfigDict(from_attributes=True)
@@ -63,6 +63,6 @@ class VideoOut(BaseModel):
     comment: Optional[str]
     last_performed_date: Optional[datetime.date]
     next_scheduled_date: Optional[datetime.date]
-    tags: list[TagOut]
+    tags: list[TagResponse]
     created_at: datetime.datetime
     updated_at: datetime.datetime

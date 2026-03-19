@@ -90,6 +90,11 @@ export interface SettingsOut {
   timezone: string;
 }
 
+export interface TimezoneOption {
+  value: string;
+  label: string;
+}
+
 // Request types
 
 export interface VideoCreateRequest {

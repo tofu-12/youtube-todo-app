@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import VideoForm from "@/components/VideoForm";
 import type { VideoOut, RecurrenceOut } from "@/lib/types";
@@ -13,10 +13,12 @@ vi.mock("next/navigation", () => ({
 const mockCreateVideo = vi.fn().mockResolvedValue({ id: "new-id" });
 const mockUpdateVideo = vi.fn().mockResolvedValue({ id: "existing-id" });
 const mockUpsertRecurrence = vi.fn().mockResolvedValue({});
+const mockGetTags = vi.fn().mockResolvedValue([]);
 vi.mock("@/lib/api", () => ({
   createVideo: (...args: unknown[]) => mockCreateVideo(...args),
   updateVideo: (...args: unknown[]) => mockUpdateVideo(...args),
   upsertRecurrence: (...args: unknown[]) => mockUpsertRecurrence(...args),
+  getTags: (...args: unknown[]) => mockGetTags(...args),
 }));
 
 /** Find the input/textarea that is a sibling of a label with the given text */
@@ -56,6 +58,7 @@ const initialRecurrence: RecurrenceOut = {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGetTags.mockResolvedValue([]);
 });
 
 describe("create mode", () => {
@@ -64,7 +67,8 @@ describe("create mode", () => {
     expect(getFieldByLabel("動画名")).toHaveValue("");
     expect(getFieldByLabel("URL")).toHaveValue("");
     expect(getFieldByLabel("コメント")).toHaveValue("");
-    expect(getFieldByLabel("タグ（カンマ区切り）")).toHaveValue("");
+    // TagInput should show no pills
+    expect(screen.queryByLabelText(/を削除$/)).not.toBeInTheDocument();
   });
 
   it("calls createVideo on submit and navigates to /videos", async () => {
@@ -80,24 +84,38 @@ describe("create mode", () => {
         name: "New Video",
         url: "https://youtube.com/watch?v=1",
         comment: null,
+        next_scheduled_date: null,
         tag_names: [],
       });
       expect(mockPush).toHaveBeenCalledWith("/videos");
     });
   });
 
-  it("splits comma-separated tags and filters empty", async () => {
+  it("submits selected tags via TagInput", async () => {
+    mockGetTags.mockResolvedValue([
+      { id: "t1", name: "chest" },
+      { id: "t2", name: "arms" },
+    ]);
     const user = userEvent.setup();
     render(<VideoForm mode="create" />);
 
     await user.type(getFieldByLabel("動画名"), "V");
     await user.type(getFieldByLabel("URL"), "https://youtube.com/watch?v=1");
-    await user.type(getFieldByLabel("タグ（カンマ区切り）"), "chest, , arms");
+
+    // Type in TagInput to search and select
+    const tagInput = screen.getByLabelText("タグ入力");
+    await user.type(tagInput, "ch");
+
+    await waitFor(() => {
+      expect(screen.getByText("chest")).toBeInTheDocument();
+    });
+    await user.click(screen.getByText("chest"));
+
     await user.click(screen.getByRole("button", { name: "登録" }));
 
     await waitFor(() => {
       expect(mockCreateVideo).toHaveBeenCalledWith(
-        expect.objectContaining({ tag_names: ["chest", "arms"] })
+        expect.objectContaining({ tag_names: ["chest"] })
       );
     });
   });
@@ -117,7 +135,9 @@ describe("edit mode", () => {
       "https://www.youtube.com/watch?v=xyz"
     );
     expect(getFieldByLabel("コメント")).toHaveValue("existing comment");
-    expect(getFieldByLabel("タグ（カンマ区切り）")).toHaveValue("chest, back");
+    // Tags should be shown as pills
+    expect(screen.getByText("chest")).toBeInTheDocument();
+    expect(screen.getByText("back")).toBeInTheDocument();
   });
 
   it("calls updateVideo and navigates to /videos/{id}", async () => {

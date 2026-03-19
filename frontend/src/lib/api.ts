@@ -4,6 +4,8 @@ import type {
   RecurrenceRequest,
   SettingsOut,
   SettingsUpdateRequest,
+  TagOut,
+  TimezoneOption,
   TodayVideoOut,
   TodoHistoryCreateRequest,
   TodoHistoryOut,
@@ -49,6 +51,12 @@ async function fetchApi<T>(
   }
 
   return res.json() as Promise<T>;
+}
+
+// Tags
+
+export async function getTags(): Promise<TagOut[]> {
+  return fetchApi<TagOut[]>("/api/tags", { cache: "no-store" });
 }
 
 // Videos
@@ -181,6 +189,12 @@ export async function deleteWorkoutHistory(id: string): Promise<void> {
 }
 
 // Settings
+
+export async function getTimezones(): Promise<TimezoneOption[]> {
+  return fetchApi<TimezoneOption[]>("/api/settings/timezones", {
+    cache: "no-store",
+  });
+}
 
 export async function getSettings(): Promise<SettingsOut> {
   return fetchApi<SettingsOut>("/api/settings", { cache: "no-store" });

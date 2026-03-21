@@ -179,7 +179,7 @@ def delete_video(
 def get_today_videos(
     db: Session, user: crud_user_schema.UserResponse
 ) -> list[api_today_schema.TodayVideoResponse]:
-    """Get videos scheduled for today or earlier.
+    """Get videos scheduled for today.
 
     Args:
         db: Database session.
@@ -192,7 +192,7 @@ def get_today_videos(
     videos = crud_video.get_videos_with_tags(db, crud_video_schema.VideoFilter(user_id=user.id))
     result = []
     for v in videos:
-        if v.next_scheduled_date is not None and v.next_scheduled_date <= today:
+        if v.next_scheduled_date is not None and v.next_scheduled_date == today:
             result.append(
                 api_today_schema.TodayVideoResponse(
                     id=v.id,

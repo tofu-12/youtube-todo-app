@@ -7,6 +7,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, field_validator
 
 from app.core.validators import validate_youtube_url
+from app.crud.schemas.video import ScheduledStatus, SortOrder, VideoSortField
 
 
 class VideoCreateRequest(BaseModel):
@@ -66,3 +67,12 @@ class VideoResponse(BaseModel):
     tags: list[TagResponse]
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class PaginatedVideoResponse(BaseModel):
+    """Paginated response for video list."""
+
+    items: list[VideoResponse]
+    total: int
+    skip: int
+    limit: int

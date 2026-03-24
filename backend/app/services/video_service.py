@@ -1,6 +1,7 @@
 """Business logic for video management."""
 
 import uuid
+from typing import Optional
 
 from sqlalchemy.orm import Session
 
@@ -13,6 +14,11 @@ from app.crud import video as crud_video
 from app.crud import video_tag as crud_video_tag
 import app.crud.schemas.user as crud_user_schema
 import app.crud.schemas.video as crud_video_schema
+from app.crud.schemas.video import (
+    ScheduledStatus,
+    SortOrder,
+    VideoSortField,
+)
 
 
 def _resolve_tags(
@@ -103,19 +109,46 @@ def get_video_detail(
 
 
 def list_videos(
-    db: Session, user_id: uuid.UUID
-) -> list[api_video_schema.VideoResponse]:
-    """List all videos for a user with their tags.
+    db: Session,
+    user: crud_user_schema.UserResponse,
+    name: Optional[str] = None,
+    tag_names: Optional[list[str]] = None,
+    scheduled_status: Optional[ScheduledStatus] = None,
+    sort_field: VideoSortField = VideoSortField.CREATED_AT,
+    sort_order: SortOrder = SortOrder.DESC,
+    skip: int = 0,
+    limit: int = 20,
+) -> api_video_schema.PaginatedVideoResponse:
+    """List videos for a user with filtering, sorting, and pagination.
 
     Args:
         db: Database session.
-        user_id: The user ID.
+        user: The current user.
+        name: Partial name match filter.
+        tag_names: Tag names AND filter.
+        scheduled_status: Scheduled status filter.
+        sort_field: Field to sort by.
+        sort_order: Sort direction.
+        skip: Number of records to skip.
+        limit: Maximum number of records to return.
 
     Returns:
-        List of videos with tags.
+        Paginated video response.
     """
-    videos = crud_video.get_videos_with_tags(db, crud_video_schema.VideoFilter(user_id=user_id))
-    return [
+    today = get_logical_today(user.day_change_time, user.timezone)
+    filter_ = crud_video_schema.VideoFilter(
+        user_id=user.id,
+        name=name,
+        tag_names=tag_names,
+        scheduled_status=scheduled_status,
+        today=today,
+        sort_field=sort_field,
+        sort_order=sort_order,
+        skip=skip,
+        limit=limit,
+    )
+    videos, total = crud_video.get_videos_with_tags(db, filter_)
+    items = [
         api_video_schema.VideoResponse(
             id=v.id,
             name=v.name,
@@ -129,6 +162,12 @@ def list_videos(
         )
         for v in videos
     ]
+    return api_video_schema.PaginatedVideoResponse(
+        items=items,
+        total=total,
+        skip=skip,
+        limit=limit,
+    )
 
 
 def update_video(
@@ -189,7 +228,7 @@ def get_today_videos(
         List of videos due today.
     """
     today = get_logical_today(user.day_change_time, user.timezone)
-    videos = crud_video.get_videos_with_tags(db, crud_video_schema.VideoFilter(user_id=user.id))
+    videos, _ = crud_video.get_videos_with_tags(db, crud_video_schema.VideoFilter(user_id=user.id))
     result = []
     for v in videos:
         if v.next_scheduled_date is not None and v.next_scheduled_date == today:
@@ -219,7 +258,7 @@ def get_overdue_videos(
         List of overdue videos.
     """
     today = get_logical_today(user.day_change_time, user.timezone)
-    videos = crud_video.get_videos_with_tags(db, crud_video_schema.VideoFilter(user_id=user.id))
+    videos, _ = crud_video.get_videos_with_tags(db, crud_video_schema.VideoFilter(user_id=user.id))
     result = []
     for v in videos:
         if v.next_scheduled_date is not None and v.next_scheduled_date < today:

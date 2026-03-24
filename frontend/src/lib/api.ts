@@ -1,5 +1,6 @@
 import type {
   AuthResponse,
+  PaginatedVideoOut,
   RecurrenceOut,
   RecurrenceRequest,
   SettingsOut,
@@ -10,6 +11,7 @@ import type {
   TodoHistoryCreateRequest,
   TodoHistoryOut,
   VideoCreateRequest,
+  VideoListParams,
   VideoOut,
   VideoUpdateRequest,
   WorkoutHistoryCreateRequest,
@@ -67,8 +69,23 @@ export async function getTags(): Promise<TagOut[]> {
 
 // Videos
 
-export async function getVideos(): Promise<VideoOut[]> {
-  return fetchApi<VideoOut[]>("/api/videos", { cache: "no-store" });
+export async function getVideos(
+  params?: VideoListParams
+): Promise<PaginatedVideoOut> {
+  const query = new URLSearchParams();
+  if (params?.name) query.set("name", params.name);
+  if (params?.tag_names) {
+    params.tag_names.forEach((t) => query.append("tag_names", t));
+  }
+  if (params?.scheduled_status) query.set("scheduled_status", params.scheduled_status);
+  if (params?.sort_field) query.set("sort_field", params.sort_field);
+  if (params?.sort_order) query.set("sort_order", params.sort_order);
+  if (params?.skip !== undefined) query.set("skip", String(params.skip));
+  if (params?.limit !== undefined) query.set("limit", String(params.limit));
+  const qs = query.toString();
+  return fetchApi<PaginatedVideoOut>(`/api/videos${qs ? `?${qs}` : ""}`, {
+    cache: "no-store",
+  });
 }
 
 export async function getVideo(id: string): Promise<VideoOut> {

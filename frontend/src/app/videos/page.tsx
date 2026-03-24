@@ -1,34 +1,219 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { getVideos } from "@/lib/api";
-import type { VideoOut } from "@/lib/types";
+import { getVideos, getTags } from "@/lib/api";
+import type { VideoOut, TagOut } from "@/lib/types";
+import {
+  ScheduledStatus,
+  VideoSortField,
+  SortOrder,
+} from "@/lib/types";
+
+const SCHEDULED_STATUS_LABELS: Record<string, string> = {
+  "": "すべて",
+  [ScheduledStatus.OVERDUE]: "期限切れ",
+  [ScheduledStatus.TODAY]: "今日",
+  [ScheduledStatus.UPCOMING]: "予定あり",
+  [ScheduledStatus.UNSCHEDULED]: "未設定",
+};
+
+const SORT_FIELD_LABELS: Record<string, string> = {
+  [VideoSortField.CREATED_AT]: "登録日時",
+  [VideoSortField.NAME]: "動画名",
+  [VideoSortField.UPDATED_AT]: "更新日時",
+  [VideoSortField.NEXT_SCHEDULED_DATE]: "次回予定日",
+  [VideoSortField.LAST_PERFORMED_DATE]: "最終実施日",
+};
+
+const PAGE_SIZE = 20;
 
 export default function VideosPage() {
   const [videos, setVideos] = useState<VideoOut[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Filters
+  const [nameQuery, setNameQuery] = useState("");
+  const [debouncedName, setDebouncedName] = useState("");
+  const [selectedTagNames, setSelectedTagNames] = useState<string[]>([]);
+  const [scheduledStatus, setScheduledStatus] = useState<string>("");
+
+  // Sort
+  const [sortField, setSortField] = useState<VideoSortField>(VideoSortField.CREATED_AT);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(SortOrder.DESC);
+
+  // Pagination
+  const [page, setPage] = useState(0);
+
+  // Tags for filter
+  const [allTags, setAllTags] = useState<TagOut[]>([]);
+
   useEffect(() => {
-    getVideos()
-      .then(setVideos)
-      .finally(() => setLoading(false));
+    getTags().then(setAllTags).catch(() => {});
   }, []);
 
-  if (loading) {
-    return <p className="text-gray-500">読み込み中...</p>;
+  // Debounce name search
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    debounceRef.current = setTimeout(() => {
+      setDebouncedName(nameQuery);
+      setPage(0);
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [nameQuery]);
+
+  const fetchVideos = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getVideos({
+        name: debouncedName || undefined,
+        tag_names: selectedTagNames.length > 0 ? selectedTagNames : undefined,
+        scheduled_status: scheduledStatus ? (scheduledStatus as ScheduledStatus) : undefined,
+        sort_field: sortField,
+        sort_order: sortOrder,
+        skip: page * PAGE_SIZE,
+        limit: PAGE_SIZE,
+      });
+      setVideos(data.items);
+      setTotal(data.total);
+    } catch {
+      // Error handled silently
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedName, selectedTagNames, scheduledStatus, sortField, sortOrder, page]);
+
+  useEffect(() => {
+    fetchVideos();
+  }, [fetchVideos]);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  function handleTagToggle(tagName: string) {
+    setSelectedTagNames((prev) =>
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName]
+    );
+    setPage(0);
+  }
+
+  function handleStatusChange(value: string) {
+    setScheduledStatus(value);
+    setPage(0);
+  }
+
+  function handleSortFieldChange(value: string) {
+    setSortField(value as VideoSortField);
+    setPage(0);
+  }
+
+  function handleSortOrderToggle() {
+    setSortOrder((prev) => (prev === SortOrder.DESC ? SortOrder.ASC : SortOrder.DESC));
+    setPage(0);
   }
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-gray-900">動画一覧</h1>
-      {videos.length === 0 ? (
+
+      {/* Filters */}
+      <div className="mb-4 space-y-3">
+        {/* Search */}
+        <input
+          type="text"
+          value={nameQuery}
+          onChange={(e) => setNameQuery(e.target.value)}
+          placeholder="動画名で検索..."
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+
+        {/* Tag filter + Status filter row */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Status filter */}
+          <select
+            value={scheduledStatus}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            {Object.entries(SCHEDULED_STATUS_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+
+          {/* Sort controls */}
+          <select
+            value={sortField}
+            onChange={(e) => handleSortFieldChange(e.target.value)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            {Object.entries(SORT_FIELD_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+
+          <button
+            type="button"
+            onClick={handleSortOrderToggle}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50"
+            title={sortOrder === SortOrder.DESC ? "降順" : "昇順"}
+          >
+            {sortOrder === SortOrder.DESC ? "↓ 降順" : "↑ 昇順"}
+          </button>
+        </div>
+
+        {/* Tag filter chips */}
+        {allTags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {allTags.map((tag) => {
+              const selected = selectedTagNames.includes(tag.name);
+              return (
+                <button
+                  key={tag.id}
+                  type="button"
+                  onClick={() => handleTagToggle(tag.name)}
+                  className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                    selected
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {tag.name}
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Results info */}
+      <div className="mb-3 text-sm text-gray-500">
+        {total > 0
+          ? `全${total}件中 ${page * PAGE_SIZE + 1}〜${Math.min((page + 1) * PAGE_SIZE, total)}件表示`
+          : "0件"}
+      </div>
+
+      {/* Video list */}
+      {loading ? (
+        <p className="text-gray-500">読み込み中...</p>
+      ) : videos.length === 0 ? (
         <p className="text-gray-500">
-          動画が登録されていません。
-          <Link href="/videos/new" className="text-blue-600 hover:underline">
-            動画を登録
-          </Link>
-          してください。
+          {debouncedName || selectedTagNames.length > 0 || scheduledStatus
+            ? "条件に一致する動画がありません。"
+            : (
+                <>
+                  動画が登録されていません。
+                  <Link href="/videos/new" className="text-blue-600 hover:underline">
+                    動画を登録
+                  </Link>
+                  してください。
+                </>
+              )}
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -61,6 +246,31 @@ export default function VideosPage() {
               </div>
             </Link>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            ← 前へ
+          </button>
+          <span className="text-sm text-gray-600">
+            {page + 1} / {totalPages} ページ
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            次へ →
+          </button>
         </div>
       )}
     </div>

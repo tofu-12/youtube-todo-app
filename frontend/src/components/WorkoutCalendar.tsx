@@ -97,10 +97,10 @@ export default function WorkoutCalendar({ performedDates }: WorkoutCalendarProps
           const isToday = dateStr === todayStr;
 
           let cellClass = "py-1 mx-auto w-7 h-7 flex items-center justify-center";
-          if (isPerformed) {
+          if (isToday) {
             cellClass += " bg-blue-600 text-white rounded-full font-medium";
-          } else if (isToday) {
-            cellClass += " ring-1 ring-blue-400 rounded-full text-gray-700";
+          } else if (isPerformed) {
+            cellClass += " ring-2 ring-blue-500 rounded-full text-gray-700";
           } else {
             cellClass += " text-gray-700";
           }

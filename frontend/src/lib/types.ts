@@ -173,3 +173,15 @@ export interface SettingsUpdateRequest {
   timezone?: string;
   workout_history_expires_days?: number;
 }
+
+// Calendar types
+
+export type CalendarEventType = "scheduled" | "performed";
+
+export interface CalendarEvent {
+  videoId: string;
+  videoName: string;
+  type: CalendarEventType;
+}
+
+export type CalendarFilterType = "all" | "scheduled" | "performed";

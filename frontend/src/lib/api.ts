@@ -88,6 +88,10 @@ export async function getVideos(
   });
 }
 
+export async function getAllVideos(): Promise<VideoOut[]> {
+  return fetchApi<VideoOut[]>("/api/videos/all", { cache: "no-store" });
+}
+
 export async function getVideo(id: string): Promise<VideoOut> {
   return fetchApi<VideoOut>(`/api/videos/${id}`, { cache: "no-store" });
 }

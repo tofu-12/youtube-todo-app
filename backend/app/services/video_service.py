@@ -60,6 +60,25 @@ def _build_video_response(
     )
 
 
+def list_all_videos(
+    db: Session,
+    user_id: uuid.UUID,
+) -> list[api_video_schema.VideoResponse]:
+    """List all videos for a user without pagination.
+
+    Args:
+        db: Database session.
+        user_id: The user ID.
+
+    Returns:
+        All videos for the user.
+    """
+    videos = crud_video.get_videos(
+        db, crud_video_schema.VideoFilter(user_id=user_id)
+    )
+    return [_build_video_response(db, v) for v in videos]
+
+
 def create_video(
     db: Session, user_id: uuid.UUID, data: VideoCreateRequest
 ) -> api_video_schema.VideoResponse:

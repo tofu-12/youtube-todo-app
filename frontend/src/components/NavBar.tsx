@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 const navItems = [
   { href: "/", label: "今日のTODO" },
   { href: "/overdue", label: "未実施" },
+  { href: "/calendar", label: "カレンダー" },
   { href: "/videos", label: "動画一覧" },
   { href: "/videos/new", label: "動画登録" },
   { href: "/settings", label: "設定" },

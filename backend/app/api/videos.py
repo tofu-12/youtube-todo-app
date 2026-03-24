@@ -16,6 +16,15 @@ from app.services import video_service
 router = APIRouter(prefix="/api/videos", tags=["videos"])
 
 
+@router.get("/all", response_model=list[api_video_schema.VideoResponse])
+def list_all_videos(
+    db: Session = Depends(get_db),
+    user: crud_user_schema.UserResponse = Depends(get_current_user),
+) -> list[api_video_schema.VideoResponse]:
+    """Get all videos for the current user without pagination."""
+    return video_service.list_all_videos(db, user.id)
+
+
 @router.get("", response_model=api_video_schema.PaginatedVideoResponse)
 def list_videos(
     name: Optional[str] = Query(None),

@@ -88,6 +88,16 @@ def create_todo_history(
                 user.id,
             )
 
+    if data.status == TodoStatus.SKIPPED:
+        crud_video.update_video(
+            db,
+            data.video_id,
+            crud_video_schema.VideoUpdate(
+                next_scheduled_date=data.next_scheduled_date
+            ),
+            user.id,
+        )
+
     return api_todo_history_schema.TodoHistoryResponse.model_validate(entry)
 
 

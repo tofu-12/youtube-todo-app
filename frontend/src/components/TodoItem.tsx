@@ -9,6 +9,8 @@ import { createTodoHistory, createWorkoutHistory } from "@/lib/api";
 export default function TodoItem({ video }: { video: TodayVideoOut }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showSkipForm, setShowSkipForm] = useState(false);
+  const [skipDate, setSkipDate] = useState("");
 
   const handleComplete = async () => {
     setLoading(true);
@@ -29,20 +31,28 @@ export default function TodoItem({ video }: { video: TodayVideoOut }) {
     }
   };
 
-  const handleSkip = async () => {
+  const handleSkipConfirm = async () => {
     setLoading(true);
     try {
       await createTodoHistory({
         video_id: video.id,
         scheduled_date: video.next_scheduled_date!,
         status: TodoStatus.SKIPPED,
+        next_scheduled_date: skipDate,
       });
+      setShowSkipForm(false);
+      setSkipDate("");
       router.refresh();
     } catch (e) {
       alert(e instanceof Error ? e.message : "エラーが発生しました");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSkipCancel = () => {
+    setShowSkipForm(false);
+    setSkipDate("");
   };
 
   return (
@@ -88,14 +98,39 @@ export default function TodoItem({ video }: { video: TodayVideoOut }) {
             完了
           </button>
           <button
-            onClick={handleSkip}
-            disabled={loading}
+            onClick={() => setShowSkipForm(true)}
+            disabled={loading || showSkipForm}
             className="rounded bg-gray-400 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-500 disabled:opacity-50"
           >
             スキップ
           </button>
         </div>
       </div>
+      {showSkipForm && (
+        <div className="mt-3 flex items-center gap-2 border-t pt-3">
+          <label className="text-sm text-gray-700">次回予定日:</label>
+          <input
+            type="date"
+            value={skipDate}
+            onChange={(e) => setSkipDate(e.target.value)}
+            className="rounded border px-2 py-1 text-sm"
+          />
+          <button
+            onClick={handleSkipConfirm}
+            disabled={loading || !skipDate}
+            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            確定
+          </button>
+          <button
+            onClick={handleSkipCancel}
+            disabled={loading}
+            className="rounded bg-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-400 disabled:opacity-50"
+          >
+            キャンセル
+          </button>
+        </div>
+      )}
     </div>
   );
 }

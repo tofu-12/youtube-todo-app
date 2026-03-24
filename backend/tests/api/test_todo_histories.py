@@ -28,6 +28,7 @@ class TestListTodoHistories:
                 "video_id": str(sample_video.id),
                 "scheduled_date": "2026-03-20",
                 "status": "skipped",
+                "next_scheduled_date": "2026-03-25",
             },
         )
 
@@ -70,8 +71,29 @@ class TestCreateTodoHistory:
         assert response.status_code == 404
         assert response.json()["detail"] == "Video not found"
 
-    def test_create_skipped(self, client, sample_video):
-        """POST /api/todo-histories with status skipped returns 201."""
+    def test_create_skipped_updates_next_scheduled_date(
+        self, client, sample_video
+    ):
+        """POST /api/todo-histories with skipped updates video next_scheduled_date."""
+        payload = {
+            "video_id": str(sample_video.id),
+            "scheduled_date": "2026-03-19",
+            "status": "skipped",
+            "next_scheduled_date": "2026-03-25",
+        }
+
+        response = client.post("/api/todo-histories", json=payload)
+
+        assert response.status_code == 201
+        assert response.json()["status"] == "skipped"
+
+        video_resp = client.get(f"/api/videos/{sample_video.id}")
+        assert video_resp.json()["next_scheduled_date"] == "2026-03-25"
+
+    def test_create_skipped_without_next_date_returns_422(
+        self, client, sample_video
+    ):
+        """POST /api/todo-histories with skipped but no next_scheduled_date returns 422."""
         payload = {
             "video_id": str(sample_video.id),
             "scheduled_date": "2026-03-19",
@@ -80,8 +102,7 @@ class TestCreateTodoHistory:
 
         response = client.post("/api/todo-histories", json=payload)
 
-        assert response.status_code == 201
-        assert response.json()["status"] == "skipped"
+        assert response.status_code == 422
 
 
 class TestDeleteTodoHistory:

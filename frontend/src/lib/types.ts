@@ -124,6 +124,7 @@ export interface TodoHistoryCreateRequest {
   video_id: string;
   scheduled_date: string;
   status: TodoStatus;
+  next_scheduled_date?: string | null;
 }
 
 export interface WorkoutHistoryCreateRequest {

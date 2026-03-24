@@ -17,14 +17,6 @@ class TodoHistoryCreateRequest(BaseModel):
     status: TodoStatus
     next_scheduled_date: Optional[datetime.date] = None
 
-    @model_validator(mode="after")
-    def validate_next_scheduled_date_required_for_skipped(self):
-        """Ensure next_scheduled_date is provided when status is SKIPPED."""
-        if self.status == TodoStatus.SKIPPED and self.next_scheduled_date is None:
-            raise ValueError(
-                "next_scheduled_date is required when status is skipped"
-            )
-        return self
 
 
 class TodoHistoryResponse(BaseModel):

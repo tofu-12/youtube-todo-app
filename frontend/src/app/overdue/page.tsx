@@ -27,7 +27,7 @@ export default function OverduePage() {
       ) : (
         <div className="space-y-3">
           {videos.map((video) => (
-            <TodoItem key={video.id} video={video} />
+            <TodoItem key={video.id} video={video} isOverdue />
           ))}
         </div>
       )}

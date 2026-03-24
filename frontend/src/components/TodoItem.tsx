@@ -6,7 +6,13 @@ import type { TodayVideoOut } from "@/lib/types";
 import { TodoStatus } from "@/lib/types";
 import { createTodoHistory, createWorkoutHistory } from "@/lib/api";
 
-export default function TodoItem({ video }: { video: TodayVideoOut }) {
+export default function TodoItem({
+  video,
+  isOverdue = false,
+}: {
+  video: TodayVideoOut;
+  isOverdue?: boolean;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showSkipForm, setShowSkipForm] = useState(false);
@@ -18,11 +24,13 @@ export default function TodoItem({ video }: { video: TodayVideoOut }) {
       await createTodoHistory({
         video_id: video.id,
         scheduled_date: video.next_scheduled_date!,
-        status: TodoStatus.COMPLETED,
+        status: isOverdue ? TodoStatus.SKIPPED : TodoStatus.COMPLETED,
       });
-      await createWorkoutHistory({
-        video_id: video.id,
-      });
+      if (!isOverdue) {
+        await createWorkoutHistory({
+          video_id: video.id,
+        });
+      }
       router.refresh();
     } catch (e) {
       alert(e instanceof Error ? e.message : "エラーが発生しました");

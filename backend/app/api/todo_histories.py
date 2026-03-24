@@ -89,14 +89,32 @@ def create_todo_history(
             )
 
     if data.status == TodoStatus.SKIPPED:
-        crud_video.update_video(
-            db,
-            data.video_id,
-            crud_video_schema.VideoUpdate(
-                next_scheduled_date=data.next_scheduled_date
-            ),
-            user.id,
-        )
+        if data.next_scheduled_date is not None:
+            crud_video.update_video(
+                db,
+                data.video_id,
+                crud_video_schema.VideoUpdate(
+                    next_scheduled_date=data.next_scheduled_date
+                ),
+                user.id,
+            )
+        else:
+            recurrence = crud_recurrence.get_recurrence_by_video(
+                db, data.video_id, user.id
+            )
+            if recurrence is not None:
+                next_date = calculate_next_scheduled_date(
+                    recurrence.recurrence_type,
+                    data.scheduled_date,
+                    recurrence.interval_days,
+                    [w.day_of_week for w in recurrence.weekdays],
+                )
+                crud_video.update_video(
+                    db,
+                    data.video_id,
+                    crud_video_schema.VideoUpdate(next_scheduled_date=next_date),
+                    user.id,
+                )
 
     return api_todo_history_schema.TodoHistoryResponse.model_validate(entry)
 

@@ -240,9 +240,7 @@ export default function VideosPage() {
                 {video.next_scheduled_date && (
                   <p>次回予定: {video.next_scheduled_date}</p>
                 )}
-                {video.last_performed_date && (
-                  <p>最終実施: {video.last_performed_date}</p>
-                )}
+                <p>最終実施: {video.last_performed_date ?? "未実施"}</p>
               </div>
             </Link>
           ))}

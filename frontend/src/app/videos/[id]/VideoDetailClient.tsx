@@ -6,6 +6,7 @@ import type { VideoOut, RecurrenceOut, WorkoutHistoryOut } from "@/lib/types";
 import { RecurrenceType } from "@/lib/types";
 import { deleteVideo } from "@/lib/api";
 import VideoForm from "@/components/VideoForm";
+import WorkoutCalendar from "@/components/WorkoutCalendar";
 
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
   [RecurrenceType.NONE]: "なし",
@@ -155,13 +156,11 @@ export default function VideoDetailClient({
           {workoutHistories.length === 0 ? (
             <p className="text-sm text-gray-500">履歴がありません</p>
           ) : (
-            <ul className="divide-y text-sm">
-              {workoutHistories.map((wh) => (
-                <li key={wh.id} className="py-2 text-gray-700">
-                  {wh.performed_date}（有効期限: {wh.expires_date}）
-                </li>
-              ))}
-            </ul>
+            <WorkoutCalendar
+              performedDates={
+                new Set(workoutHistories.map((wh) => wh.performed_date))
+              }
+            />
           )}
         </section>
       </div>

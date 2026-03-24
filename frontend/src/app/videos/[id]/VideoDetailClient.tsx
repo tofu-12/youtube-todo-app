@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { VideoOut, RecurrenceOut, WorkoutHistoryOut } from "@/lib/types";
 import { RecurrenceType } from "@/lib/types";
 import { deleteVideo } from "@/lib/api";
-import VideoForm from "@/components/VideoForm";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 
 const RECURRENCE_LABELS: Record<RecurrenceType, string> = {
@@ -25,7 +25,6 @@ export default function VideoDetailClient({
   workoutHistories: WorkoutHistoryOut[];
 }) {
   const router = useRouter();
-  const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -41,38 +40,17 @@ export default function VideoDetailClient({
     }
   };
 
-  if (editing) {
-    return (
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">動画編集</h1>
-          <button
-            onClick={() => setEditing(false)}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            キャンセル
-          </button>
-        </div>
-        <VideoForm
-          mode="edit"
-          initialData={video}
-          initialRecurrence={recurrence}
-        />
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">{video.name}</h1>
         <div className="flex gap-2">
-          <button
-            onClick={() => setEditing(true)}
+          <Link
+            href={`/videos/${video.id}/edit`}
             className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
           >
             編集
-          </button>
+          </Link>
           <button
             onClick={handleDelete}
             disabled={deleting}

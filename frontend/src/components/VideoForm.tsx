@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { VideoOut, RecurrenceOut, TagOut } from "@/lib/types";
 import { RecurrenceType, DayOfWeek } from "@/lib/types";
-import { createVideo, updateVideo, upsertRecurrence } from "@/lib/api";
+import { createVideo, updateVideo, upsertRecurrence, deleteRecurrence } from "@/lib/api";
 import TagInput from "@/components/TagInput";
 
 interface VideoFormProps {
@@ -76,17 +76,37 @@ export default function VideoForm({
         });
         videoId = video.id;
       } else {
-        const video = await updateVideo(initialData!.id, {
+        videoId = initialData!.id;
+
+        // Recurrence first (may auto-recalculate next_scheduled_date)
+        if (recurrenceType !== RecurrenceType.NONE) {
+          await upsertRecurrence(videoId, {
+            recurrence_type: recurrenceType,
+            interval_days:
+              recurrenceType === RecurrenceType.INTERVAL ? intervalDays : null,
+            weekdays:
+              recurrenceType === RecurrenceType.WEEKLY ? weekdays : [],
+          });
+        } else {
+          try {
+            await deleteRecurrence(videoId);
+          } catch (e) {
+            // Ignore 404 — video may not have had a recurrence
+            if (!(e instanceof Error && e.message.includes("404"))) throw e;
+          }
+        }
+
+        // Then update video (user's manual next_scheduled_date takes priority)
+        await updateVideo(videoId, {
           name,
           url,
           comment: comment || null,
           next_scheduled_date: nextScheduledDate || null,
           tag_names: tagNames,
         });
-        videoId = video.id;
       }
 
-      if (recurrenceType !== RecurrenceType.NONE) {
+      if (mode === "create" && recurrenceType !== RecurrenceType.NONE) {
         await upsertRecurrence(videoId, {
           recurrence_type: recurrenceType,
           interval_days:
@@ -101,7 +121,6 @@ export default function VideoForm({
       } else {
         router.push(`/videos/${videoId}`);
       }
-      router.refresh();
     } catch (e) {
       alert(e instanceof Error ? e.message : "エラーが発生しました");
     } finally {

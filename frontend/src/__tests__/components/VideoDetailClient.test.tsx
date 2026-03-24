@@ -160,7 +160,7 @@ describe("workout histories", () => {
     expect(screen.getByText("履歴がありません")).toBeInTheDocument();
   });
 
-  it("shows history dates when present", () => {
+  it("shows calendar with performed dates when present", () => {
     render(
       <VideoDetailClient
         video={baseVideo}
@@ -168,9 +168,10 @@ describe("workout histories", () => {
         workoutHistories={workoutHistories}
       />
     );
+    expect(screen.getByText(/\d{4}年\d{1,2}月/)).toBeInTheDocument();
     expect(
-      screen.getByText("2026-03-18（有効期限: 2026-03-25）")
-    ).toBeInTheDocument();
+      screen.queryByText("2026-03-18（有効期限: 2026-03-25）")
+    ).not.toBeInTheDocument();
   });
 });
 

@@ -24,7 +24,9 @@ class TestVideoCrossUserAccess:
         """GET /api/videos returns empty list for non-owner."""
         response = other_client.get("/api/videos")
         assert response.status_code == 200
-        assert response.json() == []
+        data = response.json()
+        assert data["items"] == []
+        assert data["total"] == 0
 
     def test_get_video_returns_404(self, other_client, sample_video):
         """GET /api/videos/{id} returns 404 for non-owner."""

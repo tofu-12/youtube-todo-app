@@ -54,7 +54,7 @@ class TestGetTodayVideos:
         """Videos with next_scheduled_date == today should be returned."""
         user = _make_user_response()
         video = _make_video(user.id, next_scheduled_date=FIXED_TODAY)
-        mock_get_videos.return_value = [video]
+        mock_get_videos.return_value = ([video], 1)
 
         result = get_today_videos(MagicMock(), user)
 
@@ -68,7 +68,7 @@ class TestGetTodayVideos:
         user = _make_user_response()
         yesterday = FIXED_TODAY - datetime.timedelta(days=1)
         video = _make_video(user.id, next_scheduled_date=yesterday)
-        mock_get_videos.return_value = [video]
+        mock_get_videos.return_value = ([video], 1)
 
         result = get_today_videos(MagicMock(), user)
 
@@ -81,7 +81,7 @@ class TestGetTodayVideos:
         user = _make_user_response()
         tomorrow = FIXED_TODAY + datetime.timedelta(days=1)
         video = _make_video(user.id, next_scheduled_date=tomorrow)
-        mock_get_videos.return_value = [video]
+        mock_get_videos.return_value = ([video], 1)
 
         result = get_today_videos(MagicMock(), user)
 
@@ -93,7 +93,7 @@ class TestGetTodayVideos:
         """Videos with next_scheduled_date == None should NOT be returned."""
         user = _make_user_response()
         video = _make_video(user.id, next_scheduled_date=None)
-        mock_get_videos.return_value = [video]
+        mock_get_videos.return_value = ([video], 1)
 
         result = get_today_videos(MagicMock(), user)
 
@@ -110,7 +110,7 @@ class TestGetOverdueVideos:
         user = _make_user_response()
         yesterday = FIXED_TODAY - datetime.timedelta(days=1)
         video = _make_video(user.id, next_scheduled_date=yesterday)
-        mock_get_videos.return_value = [video]
+        mock_get_videos.return_value = ([video], 1)
 
         result = get_overdue_videos(MagicMock(), user)
 
@@ -123,7 +123,7 @@ class TestGetOverdueVideos:
         """Videos with next_scheduled_date == today should NOT be overdue."""
         user = _make_user_response()
         video = _make_video(user.id, next_scheduled_date=FIXED_TODAY)
-        mock_get_videos.return_value = [video]
+        mock_get_videos.return_value = ([video], 1)
 
         result = get_overdue_videos(MagicMock(), user)
 
@@ -141,7 +141,7 @@ class TestTodayOverdueNoOverlap:
         yesterday = FIXED_TODAY - datetime.timedelta(days=1)
         video_past = _make_video(user.id, next_scheduled_date=yesterday)
         video_today = _make_video(user.id, next_scheduled_date=FIXED_TODAY)
-        mock_get_videos.return_value = [video_past, video_today]
+        mock_get_videos.return_value = ([video_past, video_today], 2)
 
         db = MagicMock()
         today_ids = {v.id for v in get_today_videos(db, user)}

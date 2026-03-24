@@ -22,6 +22,26 @@ export enum TodoStatus {
   SKIPPED = "skipped",
 }
 
+export enum ScheduledStatus {
+  OVERDUE = "overdue",
+  TODAY = "today",
+  UPCOMING = "upcoming",
+  UNSCHEDULED = "unscheduled",
+}
+
+export enum VideoSortField {
+  NAME = "name",
+  CREATED_AT = "created_at",
+  UPDATED_AT = "updated_at",
+  NEXT_SCHEDULED_DATE = "next_scheduled_date",
+  LAST_PERFORMED_DATE = "last_performed_date",
+}
+
+export enum SortOrder {
+  ASC = "asc",
+  DESC = "desc",
+}
+
 // Auth types
 
 export interface AuthResponse {
@@ -94,6 +114,23 @@ export interface SettingsOut {
 export interface TimezoneOption {
   value: string;
   label: string;
+}
+
+export interface PaginatedVideoOut {
+  items: VideoOut[];
+  total: number;
+  skip: number;
+  limit: number;
+}
+
+export interface VideoListParams {
+  name?: string;
+  tag_names?: string[];
+  scheduled_status?: ScheduledStatus;
+  sort_field?: VideoSortField;
+  sort_order?: SortOrder;
+  skip?: number;
+  limit?: number;
 }
 
 // Request types

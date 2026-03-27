@@ -39,10 +39,11 @@ tmux send-keys -t "$SESSION_NAME:ngrok" "ngrok http 3000" C-m
 
 # --- Wait for ngrok and get public URL ---
 echo "Waiting for ngrok to be ready..."
-until curl -sf http://localhost:4040/api/tunnels > /dev/null 2>&1; do
+NGROK_URL=""
+while [ -z "$NGROK_URL" ]; do
     sleep 1
+    NGROK_URL=$(curl -sf http://localhost:4040/api/tunnels | python3 -c "import sys,json; t=json.load(sys.stdin)['tunnels']; print(t[0]['public_url'] if t else '')" 2>/dev/null || true)
 done
-NGROK_URL=$(curl -sf http://localhost:4040/api/tunnels | python3 -c "import sys,json; print(json.load(sys.stdin)['tunnels'][0]['public_url'])")
 
 echo "--------------------------------------------------"
 echo "tmux セッション '$SESSION_NAME' で全サービスを起動しました。"

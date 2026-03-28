@@ -42,19 +42,19 @@ export default function VideoDetailClient({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{video.name}</h1>
-        <div className="flex gap-2">
+      <div className="mb-4 flex flex-col gap-3 md:mb-6 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-xl font-bold text-gray-900 md:text-2xl">{video.name}</h1>
+        <div className="flex gap-2 self-start">
           <Link
             href={`/videos/${video.id}/edit`}
-            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 md:px-3 md:py-1.5"
           >
             編集
           </Link>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="rounded bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+            className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 md:px-3 md:py-1.5"
           >
             削除
           </button>
@@ -67,7 +67,7 @@ export default function VideoDetailClient({
           <dl className="space-y-2 text-sm">
             <div>
               <dt className="text-gray-500">URL</dt>
-              <dd>
+              <dd className="break-all">
                 <a
                   href={video.url}
                   target="_blank"

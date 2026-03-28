@@ -21,7 +21,7 @@ export default function OverduePage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">未実施</h1>
+      <h1 className="mb-4 text-xl font-bold text-gray-900 md:mb-6 md:text-2xl">未実施</h1>
       {videos.length === 0 ? (
         <p className="text-gray-500">未実施の動画はありません</p>
       ) : (

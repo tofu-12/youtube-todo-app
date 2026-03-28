@@ -116,7 +116,7 @@ export default function VideosPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">動画一覧</h1>
+      <h1 className="mb-4 text-xl font-bold text-gray-900 md:mb-6 md:text-2xl">動画一覧</h1>
 
       {/* Filters */}
       <div className="mb-4 space-y-3">
@@ -130,12 +130,12 @@ export default function VideosPage() {
         />
 
         {/* Tag filter + Status filter row */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {/* Status filter */}
           <select
             value={scheduledStatus}
             onChange={(e) => handleStatusChange(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto md:py-1.5"
           >
             {Object.entries(SCHEDULED_STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -148,7 +148,7 @@ export default function VideosPage() {
           <select
             value={sortField}
             onChange={(e) => handleSortFieldChange(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:w-auto md:py-1.5"
           >
             {Object.entries(SORT_FIELD_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
@@ -160,7 +160,7 @@ export default function VideosPage() {
           <button
             type="button"
             onClick={handleSortOrderToggle}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm hover:bg-gray-50 sm:w-auto md:py-1.5"
             title={sortOrder === SortOrder.DESC ? "降順" : "昇順"}
           >
             {sortOrder === SortOrder.DESC ? "↓ 降順" : "↑ 昇順"}
@@ -177,7 +177,7 @@ export default function VideosPage() {
                   key={tag.id}
                   type="button"
                   onClick={() => handleTagToggle(tag.name)}
-                  className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                  className={`rounded-full px-3 py-1.5 text-sm transition-colors md:px-2.5 md:py-0.5 md:text-xs ${
                     selected
                       ? "bg-blue-600 text-white"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -254,7 +254,7 @@ export default function VideosPage() {
             type="button"
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 md:px-3 md:py-1.5"
           >
             ← 前へ
           </button>
@@ -265,7 +265,7 @@ export default function VideosPage() {
             type="button"
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 md:px-3 md:py-1.5"
           >
             次へ →
           </button>

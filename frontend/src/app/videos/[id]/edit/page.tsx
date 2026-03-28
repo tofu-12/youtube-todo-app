@@ -39,7 +39,7 @@ export default function VideoEditPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">動画編集</h1>
+        <h1 className="text-xl font-bold text-gray-900 md:text-2xl">動画編集</h1>
         <Link
           href={`/videos/${params.id}`}
           className="text-sm text-gray-500 hover:text-gray-700"

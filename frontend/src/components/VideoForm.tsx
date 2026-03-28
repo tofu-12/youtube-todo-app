@@ -11,6 +11,7 @@ interface VideoFormProps {
   mode: "create" | "edit";
   initialData?: VideoOut;
   initialRecurrence?: RecurrenceOut | null;
+  onSuccess?: () => void;
 }
 
 const ALL_WEEKDAYS = [
@@ -27,6 +28,7 @@ export default function VideoForm({
   mode,
   initialData,
   initialRecurrence,
+  onSuccess,
 }: VideoFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -117,7 +119,11 @@ export default function VideoForm({
       }
 
       if (mode === "create") {
-        router.push("/videos");
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push("/videos");
+        }
       } else {
         router.push(`/videos/${videoId}`);
       }

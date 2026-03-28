@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { getVideos, getTags } from "@/lib/api";
+import VideoForm from "@/components/VideoForm";
 import type { VideoOut, TagOut } from "@/lib/types";
 import {
   ScheduledStatus,
@@ -45,6 +46,10 @@ export default function VideosPage() {
 
   // Pagination
   const [page, setPage] = useState(0);
+
+  // Registration modal
+  const [showNewForm, setShowNewForm] = useState(false);
+  const [formKey, setFormKey] = useState(0);
 
   // Tags for filter
   const [allTags, setAllTags] = useState<TagOut[]>([]);
@@ -114,9 +119,39 @@ export default function VideosPage() {
     setPage(0);
   }
 
+  function handleCreateSuccess() {
+    setShowNewForm(false);
+    fetchVideos();
+  }
+
+  function openNewForm() {
+    setFormKey((k) => k + 1);
+    setShowNewForm(true);
+  }
+
+  useEffect(() => {
+    if (showNewForm) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showNewForm]);
+
   return (
     <div>
-      <h1 className="mb-4 text-xl font-bold text-gray-900 md:mb-6 md:text-2xl">動画一覧</h1>
+      <div className="mb-4 flex items-center justify-between md:mb-6">
+        <h1 className="text-xl font-bold text-gray-900 md:text-2xl">動画一覧</h1>
+        <button
+          type="button"
+          onClick={openNewForm}
+          className="rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 md:px-3 md:py-1.5"
+        >
+          + 動画登録
+        </button>
+      </div>
 
       {/* Filters */}
       <div className="mb-4 space-y-3">
@@ -208,9 +243,9 @@ export default function VideosPage() {
             : (
                 <>
                   動画が登録されていません。
-                  <Link href="/videos/new" className="text-blue-600 hover:underline">
+                  <button type="button" onClick={openNewForm} className="text-blue-600 hover:underline">
                     動画を登録
-                  </Link>
+                  </button>
                   してください。
                 </>
               )}
@@ -269,6 +304,25 @@ export default function VideosPage() {
           >
             次へ →
           </button>
+        </div>
+      )}
+
+      {/* Registration modal */}
+      {showNewForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="relative mx-4 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">動画登録</h2>
+              <button
+                type="button"
+                onClick={() => setShowNewForm(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
+            <VideoForm key={formKey} mode="create" onSuccess={handleCreateSuccess} />
+          </div>
         </div>
       )}
     </div>

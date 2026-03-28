@@ -63,15 +63,15 @@ export default function CalendarPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-bold text-gray-900">カレンダー</h1>
+      <h1 className="mb-3 text-xl font-bold text-gray-900 md:mb-4 md:text-2xl">カレンダー</h1>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         {FILTER_OPTIONS.map(({ value, label }) => (
           <button
             key={value}
             type="button"
             onClick={() => setFilter(value)}
-            className={`px-3 py-1 text-sm rounded ${
+            className={`px-3 py-2 text-sm rounded md:py-1 ${
               filter === value
                 ? "bg-gray-800 text-white"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"

@@ -210,7 +210,7 @@ export default function VideoForm({
               min={1}
               value={intervalDays}
               onChange={(e) => setIntervalDays(Number(e.target.value))}
-              className="mt-1 block w-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:w-32"
             />
           </div>
         )}
@@ -238,7 +238,7 @@ export default function VideoForm({
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="w-full rounded-md bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 sm:w-auto md:py-2"
       >
         {loading
           ? "保存中..."

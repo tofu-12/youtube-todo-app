@@ -65,7 +65,7 @@ export default function ScheduleCalendar({
         <button
           type="button"
           onClick={goToPreviousMonth}
-          className="text-gray-500 hover:text-gray-700 text-sm px-2 py-1"
+          className="text-gray-500 hover:text-gray-700 text-sm px-3 py-2 md:px-2 md:py-1"
           aria-label="前月"
         >
           &lt;
@@ -76,13 +76,15 @@ export default function ScheduleCalendar({
         <button
           type="button"
           onClick={goToNextMonth}
-          className="text-gray-500 hover:text-gray-700 text-sm px-2 py-1"
+          className="text-gray-500 hover:text-gray-700 text-sm px-3 py-2 md:px-2 md:py-1"
           aria-label="次月"
         >
           &gt;
         </button>
       </div>
 
+      <div className="overflow-x-auto">
+        <div className="min-w-[500px]">
       <div className="grid grid-cols-7 text-center text-xs text-gray-500 mb-1">
         {WEEKDAY_LABELS.map((label) => (
           <div key={label} className="py-1 font-medium">
@@ -97,7 +99,7 @@ export default function ScheduleCalendar({
             return (
               <div
                 key={`empty-${index}`}
-                className="min-h-[80px] border-r border-b bg-gray-50"
+                className="min-h-[60px] border-r border-b bg-gray-50 md:min-h-[80px]"
               />
             );
           }
@@ -109,7 +111,7 @@ export default function ScheduleCalendar({
           return (
             <div
               key={day}
-              className="min-h-[80px] border-r border-b p-1 bg-white"
+              className="min-h-[60px] border-r border-b p-1 bg-white md:min-h-[80px]"
             >
               <div className="flex justify-start mb-0.5">
                 <span
@@ -140,6 +142,8 @@ export default function ScheduleCalendar({
             </div>
           );
         })}
+      </div>
+        </div>
       </div>
     </div>
   );

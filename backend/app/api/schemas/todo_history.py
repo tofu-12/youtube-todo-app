@@ -30,3 +30,12 @@ class TodoHistoryResponse(BaseModel):
     status: TodoStatus
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class TodoHistoryStatsResponse(BaseModel):
+    """Stats output schema for API responses."""
+
+    completed_count: int
+    skipped_count: int
+    total_count: int
+    completion_rate: float

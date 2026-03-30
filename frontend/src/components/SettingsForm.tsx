@@ -84,8 +84,6 @@ export default function SettingsForm({
           }
           className="mt-1 block w-full rounded border-gray-300 shadow-sm"
         >
-          <option value={30}>30日</option>
-          <option value={60}>60日</option>
           <option value={90}>90日</option>
           <option value={180}>180日</option>
           <option value={365}>365日</option>

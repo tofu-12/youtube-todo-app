@@ -174,6 +174,17 @@ export interface SettingsUpdateRequest {
   workout_history_expires_days?: number;
 }
 
+// Stats types
+
+export interface TodoHistoryStats {
+  completed_count: number;
+  skipped_count: number;
+  total_count: number;
+  completion_rate: number;
+}
+
+export type StatsPeriod = "last_7_days" | "last_30_days" | "last_90_days";
+
 // Calendar types
 
 export type CalendarEventType = "scheduled" | "performed";

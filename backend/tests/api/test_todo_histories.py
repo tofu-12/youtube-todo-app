@@ -1,5 +1,7 @@
 import uuid
-from datetime import date
+from datetime import date, timedelta
+
+from app.crud.video_tag import set_video_tags
 
 
 class TestListTodoHistories:
@@ -128,3 +130,122 @@ class TestDeleteTodoHistory:
         response = client.delete(f"/api/todo-histories/{uuid.uuid4()}")
 
         assert response.status_code == 404
+
+
+class TestGetTodoHistoryStats:
+    def test_stats_empty(self, client):
+        """GET /api/todo-histories/stats returns zeros when no entries."""
+        response = client.get("/api/todo-histories/stats")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["completed_count"] == 0
+        assert data["skipped_count"] == 0
+        assert data["total_count"] == 0
+        assert data["completion_rate"] == 0.0
+
+    def test_stats_with_data(self, client, sample_video):
+        """GET /api/todo-histories/stats returns correct counts."""
+        today = date.today()
+        client.post(
+            "/api/todo-histories",
+            json={
+                "video_id": str(sample_video.id),
+                "scheduled_date": str(today),
+                "status": "completed",
+            },
+        )
+        client.post(
+            "/api/todo-histories",
+            json={
+                "video_id": str(sample_video.id),
+                "scheduled_date": str(today - timedelta(days=1)),
+                "status": "skipped",
+                "next_scheduled_date": str(today + timedelta(days=3)),
+            },
+        )
+
+        response = client.get("/api/todo-histories/stats")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["completed_count"] == 1
+        assert data["skipped_count"] == 1
+        assert data["total_count"] == 2
+        assert data["completion_rate"] == 50.0
+
+    def test_stats_with_period_filter(self, client, sample_video):
+        """GET /api/todo-histories/stats filters by period."""
+        today = date.today()
+        # Recent entry (within 7 days)
+        client.post(
+            "/api/todo-histories",
+            json={
+                "video_id": str(sample_video.id),
+                "scheduled_date": str(today),
+                "status": "completed",
+            },
+        )
+        # Old entry (outside 7 days)
+        client.post(
+            "/api/todo-histories",
+            json={
+                "video_id": str(sample_video.id),
+                "scheduled_date": str(today - timedelta(days=10)),
+                "status": "completed",
+            },
+        )
+
+        response = client.get(
+            "/api/todo-histories/stats",
+            params={"period": "last_7_days"},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total_count"] == 1
+
+    def test_stats_with_tag_filter(
+        self, db, client, sample_user, sample_video, video_factory, tag_factory
+    ):
+        """GET /api/todo-histories/stats filters by tag_id."""
+        tag = tag_factory(sample_user.id, name="stretch")
+        set_video_tags(db, sample_user.id, sample_video.id, [tag.id])
+
+        other_video = video_factory(sample_user.id)
+        today = date.today()
+
+        client.post(
+            "/api/todo-histories",
+            json={
+                "video_id": str(sample_video.id),
+                "scheduled_date": str(today),
+                "status": "completed",
+            },
+        )
+        client.post(
+            "/api/todo-histories",
+            json={
+                "video_id": str(other_video.id),
+                "scheduled_date": str(today - timedelta(days=1)),
+                "status": "completed",
+            },
+        )
+
+        response = client.get(
+            "/api/todo-histories/stats",
+            params={"tag_id": str(tag.id)},
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total_count"] == 1
+
+    def test_stats_invalid_period(self, client):
+        """GET /api/todo-histories/stats with invalid period returns 422."""
+        response = client.get(
+            "/api/todo-histories/stats",
+            params={"period": "invalid"},
+        )
+
+        assert response.status_code == 422

@@ -16,7 +16,7 @@ class User(TimestampMixin, Base):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint(
-            "workout_history_expires_days >= 1 AND workout_history_expires_days <= 365",
+            "workout_history_expires_days >= 90 AND workout_history_expires_days <= 365",
             name="ck_users_workout_history_expires_days",
         ),
     )

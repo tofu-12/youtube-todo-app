@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getTodayVideos, getOverdueVideos } from "@/lib/api";
 import TodoItem from "@/components/TodoItem";
 import type { TodayVideoOut } from "@/lib/types";
@@ -13,14 +13,19 @@ export default function HomePage() {
   const [overdueVideos, setOverdueVideos] = useState<TodayVideoOut[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    Promise.all([getTodayVideos(), getOverdueVideos()])
-      .then(([today, overdue]) => {
-        setTodayVideos(today);
-        setOverdueVideos(overdue);
-      })
-      .finally(() => setLoading(false));
+  const fetchData = useCallback(async () => {
+    try {
+      const [today, overdue] = await Promise.all([getTodayVideos(), getOverdueVideos()]);
+      setTodayVideos(today);
+      setOverdueVideos(overdue);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const activeVideos = tab === "today" ? todayVideos : overdueVideos;
 
@@ -69,6 +74,7 @@ export default function HomePage() {
             <TodoItem
               key={video.id}
               video={video}
+              onUpdate={fetchData}
               {...(tab === "overdue" ? { isOverdue: true } : {})}
             />
           ))}

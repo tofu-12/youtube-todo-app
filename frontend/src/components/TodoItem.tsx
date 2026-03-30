@@ -9,9 +9,11 @@ import { createTodoHistory, createWorkoutHistory } from "@/lib/api";
 export default function TodoItem({
   video,
   isOverdue = false,
+  onUpdate,
 }: {
   video: TodayVideoOut;
   isOverdue?: boolean;
+  onUpdate?: () => void;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -31,7 +33,7 @@ export default function TodoItem({
           video_id: video.id,
         });
       }
-      router.refresh();
+      onUpdate ? onUpdate() : router.refresh();
     } catch (e) {
       alert(e instanceof Error ? e.message : "エラーが発生しました");
     } finally {
@@ -50,7 +52,7 @@ export default function TodoItem({
       });
       setShowSkipForm(false);
       setSkipDate("");
-      router.refresh();
+      onUpdate ? onUpdate() : router.refresh();
     } catch (e) {
       alert(e instanceof Error ? e.message : "エラーが発生しました");
     } finally {

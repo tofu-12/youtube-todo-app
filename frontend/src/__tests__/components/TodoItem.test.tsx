@@ -52,9 +52,10 @@ describe("TodoItem rendering", () => {
 });
 
 describe("complete button", () => {
-  it("calls createTodoHistory(COMPLETED) + createWorkoutHistory then refreshes", async () => {
+  it("calls createTodoHistory(COMPLETED) + createWorkoutHistory then onUpdate", async () => {
     const user = userEvent.setup();
-    render(<TodoItem video={baseVideo} />);
+    const mockOnUpdate = vi.fn();
+    render(<TodoItem video={baseVideo} onUpdate={mockOnUpdate} />);
 
     await user.click(screen.getByRole("button", { name: "完了" }));
 
@@ -67,26 +68,45 @@ describe("complete button", () => {
       expect(mockCreateWorkoutHistory).toHaveBeenCalledWith({
         video_id: "v1",
       });
+      expect(mockOnUpdate).toHaveBeenCalled();
+      expect(mockRefresh).not.toHaveBeenCalled();
+    });
+  });
+
+  it("falls back to router.refresh() when onUpdate is not provided", async () => {
+    const user = userEvent.setup();
+    render(<TodoItem video={baseVideo} />);
+
+    await user.click(screen.getByRole("button", { name: "完了" }));
+
+    await waitFor(() => {
       expect(mockRefresh).toHaveBeenCalled();
     });
   });
 });
 
 describe("skip button", () => {
-  it("calls createTodoHistory(SKIPPED) only then refreshes", async () => {
+  it("calls createTodoHistory(SKIPPED) only then onUpdate", async () => {
     const user = userEvent.setup();
-    render(<TodoItem video={baseVideo} />);
+    const mockOnUpdate = vi.fn();
+    render(<TodoItem video={baseVideo} onUpdate={mockOnUpdate} />);
 
     await user.click(screen.getByRole("button", { name: "スキップ" }));
+
+    const dateInput = screen.getByDisplayValue("");
+    await user.type(dateInput, "2026-04-01");
+    await user.click(screen.getByRole("button", { name: "確定" }));
 
     await waitFor(() => {
       expect(mockCreateTodoHistory).toHaveBeenCalledWith({
         video_id: "v1",
         scheduled_date: "2026-03-19",
         status: TodoStatus.SKIPPED,
+        next_scheduled_date: "2026-04-01",
       });
       expect(mockCreateWorkoutHistory).not.toHaveBeenCalled();
-      expect(mockRefresh).toHaveBeenCalled();
+      expect(mockOnUpdate).toHaveBeenCalled();
+      expect(mockRefresh).not.toHaveBeenCalled();
     });
   });
 });

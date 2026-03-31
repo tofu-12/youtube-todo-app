@@ -12,7 +12,33 @@ import {
 import { getTodoHistoryStats, getTags } from "@/lib/api";
 import type { TodoHistoryStats, StatsPeriod, TagOut } from "@/lib/types";
 
+import type { PieLabelRenderProps } from "recharts";
+
 const COLORS = { completed: "#22c55e", skipped: "#9ca3af" };
+
+function renderInnerLabel(props: PieLabelRenderProps) {
+  const { cx, cy, midAngle, innerRadius, outerRadius, value } = props;
+  if (!value || !cx || !cy || midAngle == null || !innerRadius || !outerRadius)
+    return null;
+  const RADIAN = Math.PI / 180;
+  const radius =
+    (innerRadius as number) + ((outerRadius as number) - (innerRadius as number)) * 0.5;
+  const x = (cx as number) + radius * Math.cos(-(midAngle as number) * RADIAN);
+  const y = (cy as number) + radius * Math.sin(-(midAngle as number) * RADIAN);
+  return (
+    <text
+      x={x}
+      y={y}
+      fill="white"
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={14}
+      fontWeight="bold"
+    >
+      {value}
+    </text>
+  );
+}
 
 const PERIOD_OPTIONS: { value: StatsPeriod; label: string }[] = [
   { value: "last_7_days", label: "7日" },
@@ -113,7 +139,8 @@ export default function StatsPanel() {
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
-                  label
+                  label={renderInnerLabel}
+                  labelLine={false}
                 >
                   <Cell fill={COLORS.completed} />
                   <Cell fill={COLORS.skipped} />

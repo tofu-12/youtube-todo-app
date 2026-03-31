@@ -135,44 +135,38 @@ export default function StatsPanel() {
       ) : !stats || stats.total_count === 0 ? (
         <p className="text-sm text-gray-500">データがありません</p>
       ) : (
-        <div className="flex flex-col items-center gap-4 md:flex-row">
-          <div className="w-full md:w-1/2" style={{ height: 220 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  startAngle={90}
-                  endAngle={-270}
-                  label={renderInnerLabel}
-                  labelLine={false}
-                >
-                  <Cell fill={COLORS.completed} />
-                  <Cell fill={COLORS.skipped} />
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="flex flex-col gap-1 text-sm text-gray-700">
-            <p>
-              完了: <span className="font-semibold">{stats.completed_count}件</span>
-            </p>
-            <p>
-              スキップ: <span className="font-semibold">{stats.skipped_count}件</span>
-            </p>
-            <p>
-              合計: <span className="font-semibold">{stats.total_count}件</span>
-            </p>
-            <p>
-              達成率: <span className="font-semibold">{stats.completion_rate}%</span>
-            </p>
-          </div>
+        <div style={{ height: 220 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={50}
+                outerRadius={80}
+                startAngle={90}
+                endAngle={-270}
+                label={renderInnerLabel}
+                labelLine={false}
+              >
+                <Cell fill={COLORS.completed} />
+                <Cell fill={COLORS.skipped} />
+              </Pie>
+              <Tooltip />
+              <Legend />
+              <text
+                x="50%"
+                y="45%"
+                textAnchor="middle"
+                dominantBaseline="central"
+                className="fill-gray-800 text-2xl font-bold"
+              >
+                {stats.completion_rate}%
+              </text>
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       )}
     </div>

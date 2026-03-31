@@ -18,13 +18,20 @@ const COLORS = { completed: "#22c55e", skipped: "#9ca3af" };
 
 function renderInnerLabel(props: PieLabelRenderProps) {
   const { cx, cy, midAngle, innerRadius, outerRadius, value } = props;
-  if (!value || !cx || !cy || midAngle == null || !innerRadius || !outerRadius)
+  if (
+    !value ||
+    cx == null ||
+    cy == null ||
+    midAngle == null ||
+    outerRadius == null
+  )
     return null;
   const RADIAN = Math.PI / 180;
-  const radius =
-    (innerRadius as number) + ((outerRadius as number) - (innerRadius as number)) * 0.5;
-  const x = (cx as number) + radius * Math.cos(-(midAngle as number) * RADIAN);
-  const y = (cy as number) + radius * Math.sin(-(midAngle as number) * RADIAN);
+  const r = Number(innerRadius ?? 0);
+  const R = Number(outerRadius);
+  const radius = r + (R - r) * 0.5;
+  const x = Number(cx) + radius * Math.cos(-Number(midAngle) * RADIAN);
+  const y = Number(cy) + radius * Math.sin(-Number(midAngle) * RADIAN);
   return (
     <text
       x={x}

@@ -107,7 +107,7 @@ export default function StatsPanel() {
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value as StatsPeriod)}
-          className="rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full max-w-28 rounded border border-gray-300 px-2 py-2 text-sm"
         >
           {PERIOD_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -118,7 +118,7 @@ export default function StatsPanel() {
         <select
           value={tagId}
           onChange={(e) => setTagId(e.target.value)}
-          className="rounded border border-gray-300 px-2 py-1 text-sm"
+          className="w-full max-w-36 rounded border border-gray-300 px-2 py-2 text-sm"
         >
           <option value="">すべてのタグ</option>
           {tags.map((tag) => (

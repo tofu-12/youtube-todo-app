@@ -19,7 +19,7 @@ class SettingsUpdateRequest(BaseModel):
     day_change_time: Optional[datetime.time] = None
     timezone: Optional[str] = None
     workout_history_expires_days: Optional[int] = Field(
-        default=None, ge=1, le=365
+        default=None, ge=90, le=365
     )
 
 

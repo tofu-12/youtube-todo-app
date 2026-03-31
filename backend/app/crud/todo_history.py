@@ -2,15 +2,19 @@
 
 import uuid
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.core.types import TodoStatus
 from app.crud.schemas.todo_history import (
     TodoHistoryFilter,
     TodoHistoryInsert,
     TodoHistoryResponse,
+    TodoHistoryStatsFilter,
+    TodoHistoryStatsResponse,
 )
 from app.models.todo_history import TodoHistory
+from app.models.video_tag import VideoTag
 
 
 def create_todo_history(
@@ -52,3 +56,34 @@ def delete_todo_history(
     db.delete(entry)
     db.commit()
     return True
+
+
+def get_todo_history_stats(
+    db: Session, filter_: TodoHistoryStatsFilter
+) -> TodoHistoryStatsResponse:
+    """Aggregate todo history counts by status with optional filters."""
+    stmt = (
+        select(TodoHistory.status, func.count().label("cnt"))
+        .where(TodoHistory.user_id == filter_.user_id)
+    )
+    if filter_.date_from is not None:
+        stmt = stmt.where(TodoHistory.scheduled_date >= filter_.date_from)
+    if filter_.tag_id is not None:
+        stmt = stmt.join(
+            VideoTag, TodoHistory.video_id == VideoTag.video_id
+        ).where(VideoTag.tag_id == filter_.tag_id)
+    stmt = stmt.group_by(TodoHistory.status)
+
+    rows = db.execute(stmt).all()
+    counts = {row.status: row.cnt for row in rows}
+    completed = counts.get(TodoStatus.COMPLETED, 0)
+    skipped = counts.get(TodoStatus.SKIPPED, 0)
+    total = completed + skipped
+    rate = round(completed / total * 100, 1) if total > 0 else 0.0
+
+    return TodoHistoryStatsResponse(
+        completed_count=completed,
+        skipped_count=skipped,
+        total_count=total,
+        completion_rate=rate,
+    )

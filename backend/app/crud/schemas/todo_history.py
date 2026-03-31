@@ -37,3 +37,20 @@ class TodoHistoryResponse(BaseModel):
     status: TodoStatus
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+
+class TodoHistoryStatsFilter(BaseModel):
+    """Schema for filtering todo history stats aggregation."""
+
+    user_id: uuid.UUID
+    date_from: Optional[datetime.date] = None
+    tag_id: Optional[uuid.UUID] = None
+
+
+class TodoHistoryStatsResponse(BaseModel):
+    """Schema for returning aggregated todo history stats."""
+
+    completed_count: int
+    skipped_count: int
+    total_count: int
+    completion_rate: float

@@ -5,11 +5,13 @@ import type {
   RecurrenceRequest,
   SettingsOut,
   SettingsUpdateRequest,
+  StatsPeriod,
   TagOut,
   TimezoneOption,
   TodayVideoOut,
   TodoHistoryCreateRequest,
   TodoHistoryOut,
+  TodoHistoryStats,
   VideoCreateRequest,
   VideoListParams,
   VideoOut,
@@ -187,6 +189,19 @@ export async function createTodoHistory(
 
 export async function deleteTodoHistory(id: string): Promise<void> {
   return fetchApi<void>(`/api/todo-histories/${id}`, { method: "DELETE" });
+}
+
+export async function getTodoHistoryStats(
+  period: StatsPeriod = "last_90_days",
+  tagId?: string
+): Promise<TodoHistoryStats> {
+  const query = new URLSearchParams();
+  query.set("period", period);
+  if (tagId) query.set("tag_id", tagId);
+  return fetchApi<TodoHistoryStats>(
+    `/api/todo-histories/stats?${query.toString()}`,
+    { cache: "no-store" }
+  );
 }
 
 // Workout Histories

@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 import app.api.schemas.todo_history as api_todo_history_schema
 from app.api.schemas.todo_history import TodoHistoryCreateRequest
+from app.core.date import get_logical_today
 from app.core.dependencies import get_current_user, get_db
 from app.core.types import TodoStatus
 from app.crud import recurrence as crud_recurrence
@@ -18,6 +19,12 @@ import app.crud.schemas.todo_history as crud_todo_history_schema
 import app.crud.schemas.user as crud_user_schema
 import app.crud.schemas.video as crud_video_schema
 from app.services.recurrence_service import calculate_next_scheduled_date
+
+PERIOD_DAYS = {
+    "last_7_days": 6,
+    "last_30_days": 29,
+    "last_90_days": 89,
+}
 
 router = APIRouter(prefix="/api/todo-histories", tags=["todo-histories"])
 
@@ -117,6 +124,37 @@ def create_todo_history(
                 )
 
     return api_todo_history_schema.TodoHistoryResponse.model_validate(entry)
+
+
+@router.get(
+    "/stats",
+    response_model=api_todo_history_schema.TodoHistoryStatsResponse,
+)
+def get_todo_history_stats(
+    period: str = Query(
+        default="last_90_days",
+        pattern="^(last_7_days|last_30_days|last_90_days)$",
+    ),
+    tag_id: Optional[uuid.UUID] = Query(default=None),
+    db: Session = Depends(get_db),
+    user: crud_user_schema.UserResponse = Depends(get_current_user),
+) -> api_todo_history_schema.TodoHistoryStatsResponse:
+    """Get aggregated todo history stats with optional period and tag filters."""
+    logical_today = get_logical_today(user.day_change_time, user.timezone)
+    date_from = logical_today - datetime.timedelta(days=PERIOD_DAYS[period])
+
+    filter_ = crud_todo_history_schema.TodoHistoryStatsFilter(
+        user_id=user.id,
+        date_from=date_from,
+        tag_id=tag_id,
+    )
+    stats = crud_todo_history.get_todo_history_stats(db, filter_)
+    return api_todo_history_schema.TodoHistoryStatsResponse(
+        completed_count=stats.completed_count,
+        skipped_count=stats.skipped_count,
+        total_count=stats.total_count,
+        completion_rate=stats.completion_rate,
+    )
 
 
 @router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { getTodayVideos, getOverdueVideos } from "@/lib/api";
+import StatsPanel from "@/components/StatsPanel";
 import TodoItem from "@/components/TodoItem";
 import type { TodayVideoOut } from "@/lib/types";
 
@@ -35,6 +36,7 @@ export default function HomePage() {
 
   return (
     <div>
+      <StatsPanel />
       {/* Tab buttons */}
       <div className="mb-4 flex gap-2 md:mb-6">
         <button
